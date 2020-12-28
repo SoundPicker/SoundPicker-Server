@@ -19,10 +19,4 @@ if (config.use_env_variable) {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-db.User = require("./user")(sequelize, Sequelize);
-db.Result = require("./result")(sequelize, Sequelize);
-
-db.User.belongsTo(db.Result);
-db.Result.hasMany(db.User, { onDelete: "cascade" });
-
 module.exports = db;
