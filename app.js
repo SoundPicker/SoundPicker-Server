@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+
 const { sequelize } = require('./models');
 sequelize.sync({ alter: false })
 .then(() => {
@@ -12,6 +13,7 @@ sequelize.sync({ alter: false })
 .catch((error) => {
 	console.error(error);
 })
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

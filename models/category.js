@@ -1,5 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define('category', {
+    
     category_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
