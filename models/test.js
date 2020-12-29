@@ -1,19 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('test', {
-    
-    test_id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    category_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+  return sequelize.define('Test', {
     title: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -30,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    hidden:{
+      type: DataTypes.TINYINT(1),
+      default:0
+    }
   }, {
     freezeTableName: true,
     timestamps: false,

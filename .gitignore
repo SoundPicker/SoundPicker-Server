@@ -1,6 +1,7 @@
 config
 .DS_Store
 test
+.vscode
 
 # Logs
 logs

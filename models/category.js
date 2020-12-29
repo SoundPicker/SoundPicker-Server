@@ -1,11 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('category', {
-    
-    category_id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
+  return sequelize.define('Category', {
     thumbnailUrl: {
       type: DataTypes.STRING(512),
       allowNull: false,
