@@ -27,9 +27,9 @@ module.exports = {
     }
   },
 
-  updateUser: async (email, password, nickname, randToken) => {
+  updateUser: async (email, password, randToken) => {
     try {
-      const alreadyRandtoken = await User.update({email, password, nickname}, {
+      const alreadyRandtoken = await User.update({email, password}, {
         where: {
           id: randToken
         }
@@ -69,5 +69,18 @@ module.exports = {
     } catch (err) {
       throw err;
     }
+  },
+  mypage: async (email) => {
+    try {
+        const result = await User.findAll({
+                    attributes: [
+                        'email',
+                        'nickname',
+                        // ['test_id', 'title', 'description'],
+                    ]});
+        return result;
+    } catch (err) {
+        throw err;
+    }
   }
-}
+};

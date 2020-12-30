@@ -19,6 +19,8 @@ module.exports = {
   CHECK_EM_NN:"이메일, 닉네임 중복확인 하세요",
   USABLE_EMAIL: "사용가능한 이메일입니다",
   USABLE_NICKNAME: "사용가능한 닉네임 입니다",
+  MYPAGE_BRING_SUCCESS: "마이페이지 조회 성공",
+  MYPAGE_BRING_FAIL: "마이페이지 조회 실패",
   NO_EMAIL: "존재하지 않는 이메일 입니다.",
   NO_NICKNAME: "존재하지 않는 닉네임 입니다.",
   MISS_MATCH_PW: "비밀번호가 일치하지 않습니다.",

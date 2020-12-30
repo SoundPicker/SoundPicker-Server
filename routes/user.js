@@ -8,6 +8,10 @@ router.post('/signup', userController.signup);
 router.post('/signin', userController.signin);
 router.post('/verify/email', userController.checkEmail);
 router.post('/verify/nickname', userController.checkNickname);
+// router.put('/logout', userController.logout); //아직 안함
+// router.post('/logout', userController.logout);
+// router.get('/mypage', userController.mypage);
+
 
 module.exports = router;
 
