@@ -70,17 +70,4 @@ module.exports = {
       throw err;
     }
   },
-  mypage: async (email) => {
-    try {
-        const result = await User.findAll({
-                    attributes: [
-                        'email',
-                        'nickname',
-                        // ['test_id', 'title', 'description'],
-                    ]});
-        return result;
-    } catch (err) {
-        throw err;
-    }
-  }
 };
