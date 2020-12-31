@@ -2,7 +2,7 @@ const ut = require('../modules/util');
 const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
 
-const {Test, Question} = require('../models');
+const {User, Test, Question} = require('../models');
 
 const YD = require('youtube-mp3-downloader');
 const cutter = require('mp3-cutter');
@@ -31,9 +31,13 @@ const test = {
   getTests : async(req,res) => {
     const CategoryId = req.query.category;
     try{
-      let tests;
-      if(CategoryId) tests = await Test.findAll({where:{hidden:0, CategoryId}, order:[['visitCount', 'desc']]});
-      else tests = await Test.findAll({where:{hidden:0}, order:[['visitCount', 'desc']]});
+      let where = {hidden:0};
+      if(CategoryId) where['CategoryId'] = CategoryId;
+      const order = [['visitCount', 'desc']];
+      const attributes = ['id', 'title', 'description', 'questionCount'];
+      const include = [{model:User, attributes:['nickname']}];
+
+      const tests = await Test.findAll({include, attributes, where, order});
       
       return res.status(sc.OK)
         .send(ut.success(sc.OK, rm.SUCCESS, tests));
