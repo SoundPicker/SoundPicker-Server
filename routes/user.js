@@ -11,7 +11,6 @@ router.post('/signin', userController.signIn);
 router.post('/verify/email', userController.checkEmail);
 router.post('/verify/nickname', userController.checkNickname);
 
-router.put('/logout', userController.logOut);
 router.get('/mypage', authUtil.checkToken, userController.getMypage);
 
 router.put('/email', authUtil.checkToken, userController.changeEmail);

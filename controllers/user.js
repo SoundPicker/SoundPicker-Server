@@ -9,7 +9,6 @@ const crypto = require('crypto');
 
 const user = {
   //1. 회원가입
-    //패스워드 확인?
   signUp: async (req, res) => {
     const { email, password, nickname } = req.body;
     if (!email || !password || !nickname) {
@@ -20,7 +19,7 @@ const user = {
     try {
       const alreadyEmail = await userService.emailCheck(email);
       const alreadyNickname = await userService.nicknameCheck(nickname);
-      //중복확인버튼을 직접 눌러서 확인하지 않는경우 중복확인하라고 어떻게하지..
+
         if (alreadyEmail) {
           return res.status(sc.BAD_REQUEST).send(ut.fail(sc.BAD_REQUEST, rm.ALREADY_EMAIL));
         } else if(alreadyNickname) {
@@ -143,8 +142,8 @@ const user = {
       if (alreadyEmail) {
         console.log('이미 존재하는 이메일 입니다.');
         return res.status(sc.BAD_REQUEST).send(ut.fail(sc.BAD_REQUEST, rm.ALREADY_EMAIL));
-      }
-
+      } 
+      
       await User.update({
         email
       },
