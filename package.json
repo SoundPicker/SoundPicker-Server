@@ -20,6 +20,7 @@
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0",
     "youtube-dl": "^3.0.2",
-    "youtube-mp3-downloader": "^0.7.6"
+    "youtube-mp3-downloader": "^0.7.6",
+    "ytdl-core": "^4.3.0"
   }
 }

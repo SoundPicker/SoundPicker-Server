@@ -8,9 +8,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(200),
       allowNull: false,
     },
+    questionNumber: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     thumbnail: {
       type: DataTypes.STRING(512),
-      allowNull: false,
+      allowNull: true,
     },
     questionYoutubeURL: {
       type: DataTypes.STRING(512),

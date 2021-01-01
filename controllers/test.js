@@ -11,17 +11,19 @@ const aws = require('aws-sdk');
 aws.config.loadFromPath(__dirname + '/../config/s3.json');
 const s3 = new aws.S3();
 
-const uploadFile = (fileName) => {
+const uploadFile = async (fileName) => {
   const fileContent = fs.readFileSync(fileName);
   const params = {
     Bucket:'soundpicker-bucket',
-    Key:'hi.mp3',
+    Key:Date.now()+'.'+fileName.split('.').pop(),
     Body:fileContent
   };
   s3.upload(params, (err, data)=>{
     if(err) throw err;
     console.log(`file upload successful - ${data.Location}`);
-  })
+    return true;
+  });
+  
 };
 
 const test = {
@@ -56,7 +58,11 @@ const test = {
     const TestId = req.params.TestId;
     
     try{
-      const test = await Question.findAll({where:{TestId}});
+      const order = [['questionNumber', 'asc']];
+      const attributes = ['questionNumber', 'sound1URL', 'sound3URL', 'hint', 'answer', 'thumbnail', 'answerYoutubeURL', 'answerStartsfrom'];
+      const where = {TestId};
+      
+      const test = await Question.findAll({order, attributes, where});
       return res.status(sc.OK)
         .send(ut.success(sc.OK, rm.SUCCESS, test));
 
@@ -71,38 +77,114 @@ const test = {
 
 
   createTest : async(req,res) => {
-    const {questionYoutubeUrl} = req.body;
+    const UserId = 16;
     
-    const yd = new YD({
+    let yd = new YD({
       'ffmpegPath':'/usr/local/bin/ffmpeg',
-      'outputPath':'/Users/brian/Downloads/ffmpeg'
-    })
+      'outputPath':`${__dirname}/../audios`
+    });
+
+    const {title, description, CategoryId, questions} = req.body;
+
+    
 
     try{
-      // 속도개선 & 여러 문제에 대해 처리 필요!
-      yd.download('Vhd6Kc4TZls', 'hi.mp3');
-      yd.on('finished', (err, data)=>{
-        console.log(data);
-        cutter.cut({
-          src:'/Users/brian/Downloads/ffmpeg/hi.mp3',
-          target:'/Users/brian/Downloads/ffmpeg/bye.mp3',
-          start:3,
-          end:5
-        });
-        
-        uploadFile('/Users/brian/Downloads/ffmpeg/bye.mp3');
-        return res.status(sc.OK)
-          .send(ut.success(sc.OK, rm.SUCCESS));
-        
+      const test = await Test.create({
+        title,description,CategoryId, UserId, questionCount:questions.length, visitCount:0
       });
-
-      yd.on('error', (err)=>{throw err;});
-      yd.on('progress', (progress)=>console.log(progress));
+      const processQuestions = async(questions)=>{
+        for(let question of questions){
+          console.log(question);
+          const {
+            questionNumber,
+            questionYoutubeURL,
+            questionStartsfrom,
+            hint,
+            answer,
+            answerYoutubeURL,
+            answerStartsfrom
+          } = question;
+    
+          console.log(`${questionYoutubeURL} 다운로드 하려고 하는데..`);
+          yd.download(questionYoutubeURL, `${questionYoutubeURL}.mp3`);
+          yd.on('finished', async (err, data)=>{
+            console.log(`${questionNumber}번째 영상 다운로드 완료`);
+            console.log(data);
+            cutter.cut({
+              src:`${__dirname}/../audios/${questionYoutubeURL}.mp3`,
+              target:`${__dirname}/../audios/${questionYoutubeURL}3.mp3`,
+              start:questionStartsfrom,
+              end:questionStartsfrom + 3
+            }); // 기본적으로 동기함수
+            console.log(`${questionNumber}번째 영상 3초컷 완료`);
+            cutter.cut({
+              src:`${__dirname}/../audios/${questionYoutubeURL}3.mp3`,
+              target:`${__dirname}/../audios/${questionYoutubeURL}1.mp3`,
+              start:0,
+              end:1
+            }); // 기본적으로 동기함수
+            console.log(`${questionNumber}번째 영상 1초컷 완료`);
+            await uploadFile(`${__dirname}/../audios/${questionYoutubeURL}3.mp3`);
+            await uploadFile(`${__dirname}/../audios/${questionYoutubeURL}1.mp3`);
+  
+            console.log(`${questionNumber}번째 mp3 업로드 완료`);
+  
+            await Question.create({
+              hint,
+              answer,
+              questionYoutubeURL,
+              questionStartsfrom,
+              sound1URL:`${questionYoutubeURL}1.mp3`,
+              sound3URL:`${questionYoutubeURL}3.mp3`,
+              answerYoutubeURL,
+              answerStartsfrom,
+              TestId:test.id,
+              questionNumber
+            });
+    
+            console.log(`${questionNumber}번 DB저장 완료`);
+          });
+          yd.on('error', (err)=>{throw err;});
+          yd.on('progress', (progress)=>console.log(progress));
+          
+        }
+      };
+      const result = await processQuestions(questions);
+      if(result) return res.status(sc.OK).send(ut.success(sc.OK, rm.SUCCESS));
     } catch(err){
       console.error(err);
       return res.status(sc.DB_ERROR)
         .send(ut.fail(sc.DB_ERROR, rm.INTERNAL_SERVER_ERROR));
     }
+    
+    
+    
+
+    // try{
+    //   // 속도개선 & 여러 문제에 대해 처리 필요!
+    //   yd.download('Vhd6Kc4TZls', '~/hi.mp3'); // 물결인덱싱 안먹는 것 확인.
+    //   yd.on('finished', (err, data)=>{
+    //     console.log(data);
+    //     cutter.cut({
+    //       src:'~/hi.mp3',
+    //       target:'~/bye.mp3',
+    //       start:3,
+    //       end:5
+    //     });
+        
+    //     uploadFile('~/bye.mp3');
+    //     return res.status(sc.OK)
+    //       .send(ut.success(sc.OK, rm.SUCCESS));
+        
+    //   });
+
+    //   yd.on('error', (err)=>{throw err;});
+    //   yd.on('progress', (progress)=>console.log(progress));
+    // } catch(err){
+    //   console.error(err);
+    //   return res.status(sc.DB_ERROR)
+    //     .send(ut.fail(sc.DB_ERROR, rm.INTERNAL_SERVER_ERROR));
+    // }
     
     
 
