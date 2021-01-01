@@ -106,18 +106,6 @@ const user = {
     }
   },
 
-  //NOT DONE YET
-  //5. 로그아웃
-    // request : token
-    // response : OK / Error
-    //token blacklist??????
-  logOut: async (req, res) => {
-    const { id } = req.decoded;
-    const { accessToken } = await jwt.sign(user);
-
-    
-  },
-
   //6. 마이페이지 조회
     //request:token
     //response: {email, nickname, tests:[test_id, title, description]}
