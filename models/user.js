@@ -1,5 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define('User', {
+    //salt 추가
     email: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -12,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       allowNull: false,
     },
+    salt: {
+      type: DataTypes.STRING(200),
+      allowNull: false,
+  },
   }, {
     freezeTableName: true,
     timestamps: false,
