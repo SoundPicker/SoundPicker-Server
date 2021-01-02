@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   return sequelize.define('Category', {
     thumbnailUrl: {
       type: DataTypes.STRING(512),
-      allowNull: false,
+      allowNull: true,
     },
     description: {
       type: DataTypes.STRING(200),
