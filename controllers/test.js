@@ -2,35 +2,29 @@ const ut = require('../modules/util');
 const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
 
+// 모델 불러오기
 const {User, Test, Question} = require('../models');
 
-var Downloader = require('../modules/downloader');
-var dl = new Downloader();
+// youtube-mp3-downloader 관련
+const Downloader = require('../modules/downloader');
+const dl = new Downloader(); 
 
+// mp3-cutter
 const cutter = require('mp3-cutter');
-const fs = require('fs');
-const aws = require('aws-sdk');
-aws.config.loadFromPath(__dirname + '/../config/s3.json');
-const s3 = new aws.S3();
 
-const uploadFile = async (fileName) => {
-  const fileContent = fs.readFileSync(fileName);
-  const params = {
-    Bucket:'soundpicker-bucket',
-    Key:fileName.split('/').pop(),
-    Body:fileContent
-  };
-  s3.upload(params, (err, data)=>{
-    if(err) throw err;
-    console.log(`file upload successful - ${data.Location}`);
-    return true;
-  });
-};
+// s3 uploader
+const uploadFile = require('../modules/uploader');
 
 const test = {
 
 
 
+  /**
+   * 테스트 목록 조회
+   * @summary 카테고리에 해당하는 테스트 목록 조회하기
+   * @param CategoryId
+   * @return 테스트 목록
+   */
   getTests : async(req,res) => {
     const CategoryId = req.query.category;
     try{
@@ -55,17 +49,35 @@ const test = {
 
 
 
+
+
+  /**
+   * 특정 테스트의 문제목록 조회
+   * @summary 특정 테스트에 해당하는 문제들 조회하기
+   * @param TestId
+   * @return 해당 테스트의 문제목록
+   */
   getSpecificTest : async(req,res) => {
     const TestId = req.params.TestId;
     
     try{
+      let where = {id:TestId};
+      const test = await Test.findOne({where});
+
+      if(!test)
+        return res.status(sc.BAD_REQUEST)
+          .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
+
+      await Test.update({visitCount:test.visitCount+1}, {where});
+      
       const order = [['questionNumber', 'asc']];
       const attributes = ['questionNumber', 'sound1URL', 'sound3URL', 'hint', 'answer', 'thumbnail', 'answerYoutubeURL', 'answerStartsfrom'];
-      const where = {TestId};
+      where = {TestId};
       
-      const test = await Question.findAll({order, attributes, where});
+      const questions = await Question.findAll({order, attributes, where});
+
       return res.status(sc.OK)
-        .send(ut.success(sc.OK, rm.SUCCESS, test));
+        .send(ut.success(sc.OK, rm.SUCCESS, questions));
 
     } catch(err){
       console.error(err);
@@ -77,7 +89,15 @@ const test = {
 
 
 
+
+  /**
+   * 테스트 생성
+   * @summary 테스트 생성하기
+   * @param token, title, description, CategoryId, questions
+   * @return 성공/실패 여부
+   */
   createTest : async(req,res) => {
+    // TODO : 토큰반영
     const UserId = 16;
     const {title, description, CategoryId, questions} = req.body;
     let i = questions.length;
@@ -152,21 +172,22 @@ const test = {
   },
 
 
-
+  /**
+   * 테스트 수정
+   * @summary 본인이 올린 테스트 수정하기
+   * @param token, title, description, CategoryId, questions
+   * @return 성공/실패 여부
+   */
   updateTest : async(req,res) => {
+    // TODO : 토큰반영
     const TestId = req.params.TestId;
 
-    /**
-     * 생각을 해보면..
-     * 기존 업데이트 과정은
-     */
-    const UserId = 16;
     const {title, description, CategoryId, questions} = req.body;
     let i = questions.length;
     
 
     try{
-      const test = await Test.update({
+      await Test.update({
         title,description,CategoryId, questionCount:questions.length
       }, {where:{id:TestId}});
       await Question.destroy({where:{TestId}});
@@ -237,15 +258,25 @@ const test = {
 
 
 
-  // 해당 TestId에 해당하는 test의 hidden값 1로 만들기
+  /**
+   * 테스트 숨기기
+   * @summary 본인이 올린 테스트 숨기기
+   * @param token, title, description, CategoryId, questions
+   * @return 성공/실패 여부
+   */
   hideTest : async(req,res) => {
     const TestId = req.params.TestId;
+    const where = {id:TestId};
 
     try{
-      await Test.update({hidden:1}, {where:{id:TestId}});
+      const result = await Test.update({hidden:1}, {where});
+      if(result[0] == 0)
+        return res.status(sc.BAD_REQUEST)
+          .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
+
 
       return res.status(sc.OK)
-        .send(ut.success(sc.OK, "숨기기 성공"));
+        .send(ut.success(sc.OK, rm.SUCCESS));
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
@@ -257,7 +288,12 @@ const test = {
 
 
 
-  // 조회수 상위 6개 추천
+  /**
+   * 테스트 상위6개 조회
+   * @summary 조회수 상위 6개 테스트 조회
+   * @param token, title, description, CategoryId, questions
+   * @return 성공/실패 여부
+   */
   getTestRecommendations : async(req,res) => {
     try{
       const where = {hidden:0};
