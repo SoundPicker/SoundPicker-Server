@@ -153,10 +153,85 @@ const test = {
 
 
 
-  // 해당 TestId에 해당하는 test&questions 업데이트
-  // TODO : createTest 작성 후 ㄱㄱ.
   updateTest : async(req,res) => {
     const TestId = req.params.TestId;
+
+    /**
+     * 생각을 해보면..
+     * 기존 업데이트 과정은
+     */
+    const UserId = 16;
+    const {title, description, CategoryId, questions} = req.body;
+    let i = questions.length;
+    
+
+    try{
+      const test = await Test.update({
+        title,description,CategoryId, questionCount:questions.length
+      }, {where:{id:TestId}});
+      await Question.destroy({where:{TestId}});
+
+      for(let question of questions){
+        const {
+          questionNumber,
+          questionYoutubeURL,
+          questionStartsfrom,
+          hint,
+          answer,
+          answerYoutubeURL,
+          answerStartsfrom
+        } = question;
+  
+        
+        dl.getMP3({videoId:questionYoutubeURL, name:questionYoutubeURL+'.mp3'}, async (err, result)=>{
+          i--;
+          if(err) throw err;
+          console.log(`${i}개남았다리`);
+          // console.log(result.file);
+
+          cutter.cut({
+            src:`${__dirname}/../audios/${questionYoutubeURL}.mp3`,
+            target:`${__dirname}/../audios/${questionYoutubeURL}3.mp3`,
+            start:questionStartsfrom,
+            end:questionStartsfrom + 3
+          }); // 기본적으로 동기함수
+          console.log(`${questionNumber}번째 영상 3초컷 완료`);
+          cutter.cut({
+            src:`${__dirname}/../audios/${questionYoutubeURL}3.mp3`,
+            target:`${__dirname}/../audios/${questionYoutubeURL}1.mp3`,
+            start:0,
+            end:1
+          }); // 기본적으로 동기함수
+          console.log('커팅완료');
+          await uploadFile(`${__dirname}/../audios/${questionYoutubeURL}3.mp3`);
+          await uploadFile(`${__dirname}/../audios/${questionYoutubeURL}1.mp3`);
+          console.log('업로드완료');
+          await Question.create({
+            hint,
+            answer,
+            questionYoutubeURL,
+            questionStartsfrom,
+            sound1URL:`${questionYoutubeURL}1.mp3`,
+            sound3URL:`${questionYoutubeURL}3.mp3`,
+            answerYoutubeURL,
+            answerStartsfrom,
+            TestId,
+            questionNumber
+          });
+  
+          console.log(`${questionNumber}번 DB저장 완료`);
+
+          if(i == 0){
+            return res.status(sc.OK).send(ut.success(sc.OK, rm.SUCCESS));
+          }
+        })
+      }
+      
+    } catch(err){
+      console.error(err);
+      return res.status(sc.DB_ERROR)
+        .send(ut.fail(sc.DB_ERROR, rm.INTERNAL_SERVER_ERROR));
+    }
   },
 
 
@@ -184,9 +259,22 @@ const test = {
 
   // 조회수 상위 6개 추천
   getTestRecommendations : async(req,res) => {
-    const recommendedTests = await Test.findAll({where:{hidden:0}, order:[['visitCount', 'desc']], limit:3});
-    return res.status(sc.OK)
-      .send(ut.success(sc.OK, rm.success, recommendedTests));
+    try{
+      const where = {hidden:0};
+      const order = [['visitCount', 'desc']];
+      const attributes = ['id', 'title', 'description', 'questionCount'];
+      const include = [{model:User, attributes:['nickname']}];
+
+      const recommendedTests = await Test.findAll({include, attributes, where, order});
+      
+      return res.status(sc.OK)
+        .send(ut.success(sc.OK, rm.SUCCESS, recommendedTests));
+
+    } catch(err){
+      console.error(err);
+      return res.status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.DB_ERROR));
+    }
   },
 };
 
