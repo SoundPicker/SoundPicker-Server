@@ -15,10 +15,12 @@ module.exports = (sequelize, DataTypes) => {
     visitCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue:0,
     },
     hidden:{
       type: DataTypes.TINYINT(1),
-      default:0
+      allowNull: false,
+      defaultValue:0,
     }
   }, {
     freezeTableName: true,
