@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const userController = require('../controllers/user');
-const authUtil = require('../middleware/auth');
+const authUtil = require('../middlewares/auth');
 
 // 라우터 작성
 router.post('/signup', userController.signUp);
