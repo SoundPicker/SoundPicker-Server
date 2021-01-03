@@ -97,8 +97,7 @@ const test = {
    * @return 성공/실패 여부
    */
   createTest : async(req,res) => {
-    // TODO : 토큰반영
-    const UserId = 16;
+    const UserId = req.decoded.id;
     const {title, description, CategoryId, questions} = req.body;
     let i = questions.length;
     
@@ -123,7 +122,7 @@ const test = {
         dl.getMP3({videoId:questionYoutubeURL, name:questionYoutubeURL+'.mp3'}, async (err, result)=>{
           i--;
           if(err) throw err;
-          console.log(`${i}개남았다리`);
+          console.log(`${i}개남음`);
           // console.log(result.file);
 
           cutter.cut({
@@ -179,7 +178,7 @@ const test = {
    * @return 성공/실패 여부
    */
   updateTest : async(req,res) => {
-    // TODO : 토큰반영
+    const UserId = req.decoded.id;
     const TestId = req.params.TestId;
 
     const {title, description, CategoryId, questions} = req.body;
@@ -187,6 +186,17 @@ const test = {
     
 
     try{
+      let where = {id:TestId};
+      let attributes = ['UserId'];
+      const test = await Test.findOne({attributes, where});
+      if(!test)
+        return res.status(sc.NOT_FOUND)
+          .send(ut.fail(sc.NOT_FOUND, rm.WRONG_INDEX));
+      
+      if(test.UserId != UserId)
+        return res.status(sc.UNAUTHORIZED)
+          .send(ut.fail(sc.UNAUTHORIZED, rm.NO_PERMISSION));
+
       await Test.update({
         title,description,CategoryId, questionCount:questions.length
       }, {where:{id:TestId}});
@@ -207,7 +217,7 @@ const test = {
         dl.getMP3({videoId:questionYoutubeURL, name:questionYoutubeURL+'.mp3'}, async (err, result)=>{
           i--;
           if(err) throw err;
-          console.log(`${i}개남았다리`);
+          console.log(`${i}개남음`);
           // console.log(result.file);
 
           cutter.cut({
@@ -265,10 +275,16 @@ const test = {
    * @return 성공/실패 여부
    */
   hideTest : async(req,res) => {
+    const UserId = req.decoded.id;
     const TestId = req.params.TestId;
     const where = {id:TestId};
+    const attributes = ['UserId'];
 
     try{
+      const test = await Test.findOne({attributes, where});
+      if(test.UserId != UserId)
+        return res.status(sc.UNAUTHORIZED)
+          .send(ut.fail(sc.UNAUTHORIZED, rm.NO_PERMISSION));
       const result = await Test.update({hidden:1}, {where});
       if(result[0] == 0)
         return res.status(sc.BAD_REQUEST)
