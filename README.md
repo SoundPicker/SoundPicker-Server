@@ -34,7 +34,7 @@ db.Question.belongsTo(db.Test);
 ## **📙 DB ERD**
 (추가예정)
 <!--<img width="50%" alt="스크린샷 2020-12-17 오전 4 01 20" src="https://user-images.githubusercontent.com/29622782/102395643-c5ffbc00-401e-11eb-9707-721974bb098c.png">-->
-<!--<img width="550" src="https://user-images.githubusercontent.com/66619693/103537836-718e8480-4ed8-11eb-91ef-6dd32bd6c01c.PNG"-- //캡처by혜림> 
+<!--<img width="550" src="https://user-images.githubusercontent.com/66619693/103537836-718e8480-4ed8-11eb-91ef-6dd32bd6c01c.PNG"//캡처--> 
 
 <br>
 
