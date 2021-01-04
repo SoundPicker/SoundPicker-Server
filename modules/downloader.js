@@ -1,12 +1,12 @@
 var YoutubeMp3Downloader = require("youtube-mp3-downloader");
+const ffmpegPath = require('../config/ffmpegPath');
 
 var Downloader = function () {
   var self = this;
 
   //Configure YoutubeMp3Downloader with your settings
   self.YD = new YoutubeMp3Downloader({
-    // ffmpegPath: "/usr/local/bin/ffmpeg", // FFmpeg binary location 
-    ffmpegPath: "C:/Program Files/ffmpeg/bin/ffmpeg",
+    ffmpegPath,
     outputPath: `${__dirname}/../audios`, // Output file location (default: the home directory)
     // youtubeVideoQuality: "highestaudio", // Desired video quality (default: highestaudio)
     queueParallelism: 10, // Download parallelism (default: 1)
@@ -25,6 +25,8 @@ var Downloader = function () {
   });
 
   self.YD.on("error", function (error, data) {
+    console.error(error);
+    console.log(data);
     console.error(error + " on videoId " + data.videoId);
 
     if (self.callbacks[data.videoId]) {
