@@ -1,8 +1,7 @@
 # SoundPicker-Server
 🎧 소리로 하는 모든 즐거움, 사운드피커 서버 저장소 🎧🎵🎶
 
-<br>
-
+## **🗺️ View**
 <div>
   <img width="300" img height="210" src="https://user-images.githubusercontent.com/66619693/103541561-f381ac00-4ede-11eb-9632-eabfea8d3ca7.PNG">
   <img width="300" img height="210" src="https://user-images.githubusercontent.com/66619693/103541840-56734300-4edf-11eb-829e-c8013e431bec.PNG">
