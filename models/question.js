@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   return sequelize.define('Question', {
     hint: {
       type: DataTypes.STRING(50),
-      allowNull: false,
+      allowNull: true,
     },
     answer: {
       type: DataTypes.STRING(200),
@@ -34,10 +34,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     answerYoutubeURL: {
       type: DataTypes.STRING(512),
-      allowNull: false,
-    },
-    answerStartsfrom: {
-      type: DataTypes.INTEGER,
       allowNull: false,
     },
   }, {

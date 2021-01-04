@@ -1,6 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define('User', {
-    //salt 추가
     email: {
       type: DataTypes.STRING(50),
       allowNull: false,

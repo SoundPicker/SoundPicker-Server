@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TINYINT(1),
       allowNull: false,
       defaultValue:0,
+    },
+    generated:{
+      type:DataTypes.TINYINT(1),
+      allowNull: false,
+      defaultValue:0
     }
   }, {
     freezeTableName: true,
