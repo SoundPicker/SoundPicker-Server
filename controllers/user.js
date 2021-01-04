@@ -4,7 +4,7 @@ const sc = require('../modules/statusCode');
 const jwt = require('../modules/jwt');
 const userService = require('../service/userService');
 const { nicknameCheck } = require('../service/userService');
-const { User } = require('../models');
+const { User, Test } = require('../models');
 const crypto = require('crypto');
 
 const user = {
@@ -115,7 +115,13 @@ const user = {
       const user = await User.findOne({
         where: {
           id
-        }, attributes: ['id', 'email', 'nickname'] //tests 추가해야됨
+        }, 
+        attributes: ['id', 'email', 'nickname'],
+        include: [{
+          model: Test,
+          require: true,
+          attributes: ['id', 'title', 'description']
+        }],
       });
       return res.status(sc.OK).send(ut.success(sc.OK, rm.MYPAGE_BRING_SUCCESS, user));
       }

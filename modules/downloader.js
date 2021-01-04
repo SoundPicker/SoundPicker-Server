@@ -5,7 +5,8 @@ var Downloader = function () {
 
   //Configure YoutubeMp3Downloader with your settings
   self.YD = new YoutubeMp3Downloader({
-    ffmpegPath: "/usr/local/bin/ffmpeg", // FFmpeg binary location
+    // ffmpegPath: "/usr/local/bin/ffmpeg", // FFmpeg binary location 
+    ffmpegPath: "C:/Program Files/ffmpeg/bin/ffmpeg",
     outputPath: `${__dirname}/../audios`, // Output file location (default: the home directory)
     // youtubeVideoQuality: "highestaudio", // Desired video quality (default: highestaudio)
     queueParallelism: 10, // Download parallelism (default: 1)
