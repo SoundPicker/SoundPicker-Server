@@ -119,7 +119,8 @@ const user = {
         include: [{
           model: Test,
           require: true,
-          attributes: ['id', 'title', 'description']
+          attributes: ['id', 'title', 'description', 'generated'],
+          where:{hidden:0}
         }],
       });
       return res.status(sc.OK).send(ut.success(sc.OK, rm.MYPAGE_BRING_SUCCESS, user));

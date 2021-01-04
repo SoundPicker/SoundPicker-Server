@@ -156,11 +156,14 @@ const test = {
           console.log(`${questionNumber}번 DB저장 완료`);
 
           if(i == 0){
-            return res.status(sc.OK).send(ut.success(sc.OK, rm.CREATE_TEST_SUCCESS));
+            // test 찾아서 generated 1로 바꿔줌.
+            let where = {id:test.dataValues.id};
+            await Test.update({generated:1}, {where});
+            console.log('완벽히 생성 성공!');
           }
         })
       }
-      
+      return res.status(sc.OK).send(ut.success(sc.OK, rm.CREATE_TEST_SUCCESS));
     } catch(err){
       console.error(err);
       return res.status(sc.DB_ERROR)
@@ -196,7 +199,7 @@ const test = {
           .send(ut.fail(sc.UNAUTHORIZED, rm.NO_PERMISSION));
 
       await Test.update({
-        title,description,CategoryId, questionCount:questions.length
+        title,description,CategoryId, questionCount:questions.length, generated:0
       }, {where:{id:TestId}});
       await Question.destroy({where:{TestId}});
 
@@ -249,10 +252,13 @@ const test = {
           console.log(`${questionNumber}번 DB저장 완료`);
 
           if(i == 0){
-            return res.status(sc.OK).send(ut.success(sc.OK, rm.UPDATE_TEST_SUCCESS));
+            let where = {id:TestId};
+            await Test.update({generated:1}, {where});
+            console.log('완벽히 수정 성공!');
           }
         })
       }
+      return res.status(sc.OK).send(ut.success(sc.OK, rm.UPDATE_TEST_SUCCESS));
       
     } catch(err){
       console.error(err);
