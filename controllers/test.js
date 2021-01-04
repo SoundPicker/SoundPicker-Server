@@ -71,7 +71,7 @@ const test = {
       await Test.update({visitCount:test.visitCount+1}, {where});
       
       const order = [['questionNumber', 'asc']];
-      const attributes = ['questionNumber', 'sound1URL', 'sound3URL', 'hint', 'answer', 'thumbnail', 'answerYoutubeURL', 'answerStartsfrom'];
+      const attributes = ['questionNumber', 'sound1URL', 'sound3URL', 'hint', 'answer', 'thumbnail', 'answerYoutubeURL'];
       where = {TestId};
       
       const questions = await Question.findAll({order, attributes, where});
@@ -115,7 +115,6 @@ const test = {
           hint,
           answer,
           answerYoutubeURL,
-          answerStartsfrom
         } = question;
   
         
@@ -150,7 +149,6 @@ const test = {
             sound1URL:`${questionYoutubeURL}1.mp3`,
             sound3URL:`${questionYoutubeURL}3.mp3`,
             answerYoutubeURL,
-            answerStartsfrom,
             TestId:test.dataValues.id,
             questionNumber
           });
@@ -210,7 +208,6 @@ const test = {
           hint,
           answer,
           answerYoutubeURL,
-          answerStartsfrom
         } = question;
   
         
@@ -245,7 +242,6 @@ const test = {
             sound1URL:`${questionYoutubeURL}1.mp3`,
             sound3URL:`${questionYoutubeURL}3.mp3`,
             answerYoutubeURL,
-            answerStartsfrom,
             TestId,
             questionNumber
           });
