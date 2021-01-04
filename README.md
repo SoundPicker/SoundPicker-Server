@@ -37,9 +37,11 @@ db.Question.belongsTo(db.Test);
 <img width="50%" alt="스크린샷 2020-12-17 오전 4 01 20" src="https://user-images.githubusercontent.com/29622782/103537017-e8c31900-4ed6-11eb-8779-e13f392ea3fa.png">
 
 <br>
+
 ## **📗 Architecture**
 (추가예정)
 
+<br>
 ## **📑 핵심 기능**
 
 ### 테스트 제작
@@ -47,7 +49,7 @@ db.Question.belongsTo(db.Test);
 
 ### 테스트 플레이
 사용자는 사운드피커에 올라와 있는 모든 테스트들을 직접 플레이할 수 있습니다. 각 테스트들은 카테고리별, 검색어별로 나누어서 볼 수 있습니다.
-
+<br>
 
 ## **🌎 Team Role**
 
