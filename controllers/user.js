@@ -28,9 +28,8 @@ const user = {
         const user = await userService.signup(email, password, nickname);
         return res.status(sc.OK).send(ut.success(sc.OK, rm.SIGN_UP_SUCCESS, {
           email: user.email,
-          password: user.password,
           nickname: user.nickname,
-        }))
+        }));
       }
     } catch (error) {
       console.error(error);
