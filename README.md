@@ -3,6 +3,16 @@
 
 <br>
 
+<div>
+  <img width="300" img height="210" src="https://user-images.githubusercontent.com/66619693/103541561-f381ac00-4ede-11eb-9632-eabfea8d3ca7.PNG">
+  <img width="300" img height="210" src="https://user-images.githubusercontent.com/66619693/103541840-56734300-4edf-11eb-829e-c8013e431bec.PNG">
+  <img width="300" img height="210" src="https://user-images.githubusercontent.com/66619693/103542171-e618f180-4edf-11eb-9eaf-6423b72e258c.PNG">
+  <img width="300" img height="210" src="https://user-images.githubusercontent.com/66619693/103542266-0c3e9180-4ee0-11eb-8bc2-989f13bde6af.PNG">
+  <img width="300" img height="210" src="https://user-images.githubusercontent.com/66619693/103542483-5758a480-4ee0-11eb-9d60-ecc9dafa9a92.PNG">
+</div>
+
+<br>
+
 ## **📑 API 명세서**
 
 - **[API 명세서 ](https://github.com/SoundPicker/SoundPicker-Server/wiki)**  
