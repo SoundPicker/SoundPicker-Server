@@ -1,6 +1,8 @@
 # SoundPicker-Server
 🎧 소리로 하는 모든 즐거움, 사운드피커 서버 저장소 🎧🎵🎶
 
+<br>
+
 ## **🗺️ View**
 <div>
   <img width="300" img height="210" src="https://user-images.githubusercontent.com/66619693/103541561-f381ac00-4ede-11eb-9632-eabfea8d3ca7.PNG">
@@ -14,7 +16,7 @@
 
 ## **📑 API 명세서**
 
-- **[API 명세서 ](https://github.com/SoundPicker/SoundPicker-Server/wiki)**  
+- **[API 명세서](https://github.com/SoundPicker/SoundPicker-Server/wiki)**  
 
 
 <br>
@@ -48,9 +50,10 @@ db.Question.belongsTo(db.Test);
 <br>
 
 ## **📗 Architecture**
-(추가예정)
+<img src="https://user-images.githubusercontent.com/29622782/103550767-bb816580-4eec-11eb-9f60-f37d1acb2501.png">
 
 <br>
+
 ## **📑 핵심 기능**
 
 ### 테스트 제작
