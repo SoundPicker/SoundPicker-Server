@@ -7,6 +7,17 @@ module.exports = {
   UNSUPPORTED_TYPE: "지원하지 않는 파일 형식입니다.",
   DB_ERROR: "DB 오류",
 
+  /* tests */
+  GET_TESTS_SUCCESS:"테스트 목록 조회 성공",
+  GET_QUESTIONS_SUCCESS:"테스트 문제들 조회 성공",
+  CREATE_TEST_SUCCESS:"테스트 생성 성공",
+  UPDATE_TEST_SUCCESS:"테스트 수정 성공",
+  HIDE_TEST_SUCCESS:"테스트 숨기기 성공",
+
+
+
+
+
   /* 회원가입, 로그인 */
   SIGN_UP_SUCCESS: "회원가입성공",
   SIGN_UP_FAIL: "회원 가입 실패",

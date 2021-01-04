@@ -37,7 +37,7 @@ const test = {
       const tests = await Test.findAll({include, attributes, where, order});
       
       return res.status(sc.OK)
-        .send(ut.success(sc.OK, rm.SUCCESS, tests));
+        .send(ut.success(sc.OK, rm.GET_TESTS_SUCCESS, tests));
 
     } catch(err){
       console.error(err);
@@ -77,7 +77,7 @@ const test = {
       const questions = await Question.findAll({order, attributes, where});
 
       return res.status(sc.OK)
-        .send(ut.success(sc.OK, rm.SUCCESS, questions));
+        .send(ut.success(sc.OK, rm.GET_QUESTIONS_SUCCESS, questions));
 
     } catch(err){
       console.error(err);
@@ -156,7 +156,7 @@ const test = {
           console.log(`${questionNumber}번 DB저장 완료`);
 
           if(i == 0){
-            return res.status(sc.OK).send(ut.success(sc.OK, rm.SUCCESS));
+            return res.status(sc.OK).send(ut.success(sc.OK, rm.CREATE_TEST_SUCCESS));
           }
         })
       }
@@ -249,7 +249,7 @@ const test = {
           console.log(`${questionNumber}번 DB저장 완료`);
 
           if(i == 0){
-            return res.status(sc.OK).send(ut.success(sc.OK, rm.SUCCESS));
+            return res.status(sc.OK).send(ut.success(sc.OK, rm.UPDATE_TEST_SUCCESS));
           }
         })
       }
@@ -288,7 +288,7 @@ const test = {
 
 
       return res.status(sc.OK)
-        .send(ut.success(sc.OK, rm.SUCCESS));
+        .send(ut.success(sc.OK, rm.HIDE_TEST_SUCCESS));
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
@@ -316,7 +316,7 @@ const test = {
       const recommendedTests = await Test.findAll({include, attributes, where, order});
       
       return res.status(sc.OK)
-        .send(ut.success(sc.OK, rm.SUCCESS, recommendedTests));
+        .send(ut.success(sc.OK, rm.GET_TESTS_SUCCESS, recommendedTests));
 
     } catch(err){
       console.error(err);
