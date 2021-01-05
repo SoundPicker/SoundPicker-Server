@@ -1,6 +1,8 @@
 config
 .DS_Store
 test
+.vscode
+audios
 
 # Logs
 logs
