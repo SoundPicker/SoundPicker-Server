@@ -42,7 +42,7 @@ const test = {
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.DB_ERROR));
+        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
     }
   },
 
@@ -85,7 +85,7 @@ const test = {
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.DB_ERROR));
+        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
     }
   },
 
@@ -169,8 +169,8 @@ const test = {
       return res.status(sc.OK).send(ut.success(sc.OK, rm.CREATE_TEST_SUCCESS));
     } catch(err){
       console.error(err);
-      return res.status(sc.DB_ERROR)
-        .send(ut.fail(sc.DB_ERROR, rm.INTERNAL_SERVER_ERROR));
+      return res.status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
     }
   },
 
@@ -265,8 +265,8 @@ const test = {
       
     } catch(err){
       console.error(err);
-      return res.status(sc.DB_ERROR)
-        .send(ut.fail(sc.DB_ERROR, rm.INTERNAL_SERVER_ERROR));
+      return res.status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
     }
   },
 
@@ -301,7 +301,7 @@ const test = {
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.DB_ERROR));
+        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
     }
   },
 
@@ -330,7 +330,7 @@ const test = {
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.DB_ERROR));
+        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
     }
   },
 };
