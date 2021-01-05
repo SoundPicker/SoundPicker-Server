@@ -318,6 +318,7 @@ const test = {
   getTestRecommendations : async(req,res) => {
     try{
       const where = {hidden:0, generated:1};
+      const test = await Test.findOne({where});
 
       await Test.update({finishCount:test.finishCount+1}, {where});
 
