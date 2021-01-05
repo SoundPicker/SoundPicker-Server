@@ -318,8 +318,11 @@ const test = {
   getTestRecommendations : async(req,res) => {
     try{
       const where = {hidden:0, generated:1};
-      const order = [['visitCount', 'desc'], ['title', 'asc']]; // 최신순으로 변경 가능성 O
-      const attributes = ['id', 'title', 'description', 'questionCount'];
+
+      await Test.update({finishCount:test.finishCount+1}, {where});
+
+      const order = [['visitCount', 'desc'], ['finishCount', 'desc']];
+      const attributes = ['id', 'title', 'description', 'questionCount', 'finishCount'];
       const include = [{model:User, attributes:['nickname']}];
 
       const recommendedTests = await Test.findAll({include, attributes, where, order, limit:6});
