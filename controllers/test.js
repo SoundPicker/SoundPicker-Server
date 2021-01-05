@@ -3,7 +3,7 @@ const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
 
 // 모델 불러오기
-const {User, Test, Question} = require('../models');
+const {User, Test, Question, Sequelize} = require('../models');
 
 // youtube-mp3-downloader 관련
 const Downloader = require('../modules/downloader');
@@ -317,16 +317,17 @@ const test = {
    */
   getTestRecommendations : async(req,res) => {
     try{
-      const where = {hidden:0, generated:1};
-      const test = await Test.findOne({where});
+      const {TestId}  = req.query; // 쿼리스트링에서 TestId를 받은 후
+      let where = {id:TestId}; // where 설정
+      const test = await Test.findOne({where}); // 해당 아이디의 test를 찾은 후
 
-      await Test.update({finishCount:test.finishCount+1}, {where});
+      await Test.update({finishCount:test.finishCount+1}, {where}); // finishCount를 하나 올려준 다음에
 
-      const order = [['visitCount', 'desc'], ['finishCount', 'desc']];
-      const attributes = ['id', 'title', 'description', 'questionCount', 'finishCount'];
+      const order = [['visitCount', 'desc'], [Sequelize.literal('finishCount/visitCount'), 'desc']]; // 1. 조회수순 2.완주율순으로
+      const attributes = ['id', 'title', 'description', 'questionCount', 'visitCount', 'finishCount'];
       const include = [{model:User, attributes:['nickname']}];
-
-      const recommendedTests = await Test.findAll({include, attributes, where, order, limit:6});
+      where = {hidden:0, generated:1};
+      const recommendedTests = await Test.findAll({include, attributes, where, order, limit:6}); // 6개 조회
       
       return res.status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_TESTS_SUCCESS, recommendedTests));
