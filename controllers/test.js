@@ -74,8 +74,11 @@ const test = {
       const attributes = ['questionNumber', 'sound1URL', 'sound3URL', 'hint', 'answer', 'thumbnail', 'answerYoutubeURL'];
       where = {TestId};
       
-      const questions = await Question.findAll({order, attributes, where});
-
+      let questions = await Question.findAll({order, attributes, where});
+      for(let question of questions){
+        question.sound1URL = 'https://soundpicker-bucket.s3.ap-northeast-2.amazonaws.com/'+question.sound1URL;
+        question.sound3URL = 'https://soundpicker-bucket.s3.ap-northeast-2.amazonaws.com/'+question.sound3URL;
+      }
       return res.status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_QUESTIONS_SUCCESS, questions));
 
