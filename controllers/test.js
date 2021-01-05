@@ -317,12 +317,12 @@ const test = {
    */
   getTestRecommendations : async(req,res) => {
     try{
-      const where = {hidden:0};
-      const order = [['visitCount', 'desc']];
+      const where = {hidden:0, generated:1};
+      const order = [['visitCount', 'desc'], ['title', 'asc']]; // 최신순으로 변경 가능성 O
       const attributes = ['id', 'title', 'description', 'questionCount'];
       const include = [{model:User, attributes:['nickname']}];
 
-      const recommendedTests = await Test.findAll({include, attributes, where, order});
+      const recommendedTests = await Test.findAll({include, attributes, where, order, limit:6});
       
       return res.status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_TESTS_SUCCESS, recommendedTests));
