@@ -76,8 +76,10 @@ const test = {
       
       let questions = await Question.findAll({order, attributes, where});
       for(let question of questions){
+        console.log(question);
         question.sound1URL = 'https://soundpicker-bucket.s3.ap-northeast-2.amazonaws.com/'+question.sound1URL;
         question.sound3URL = 'https://soundpicker-bucket.s3.ap-northeast-2.amazonaws.com/'+question.sound3URL;
+        question.dataValues.testTitle=test.title;
       }
       return res.status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_QUESTIONS_SUCCESS, questions));
