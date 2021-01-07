@@ -6,6 +6,8 @@ const userService = require('../service/userService');
 const { nicknameCheck } = require('../service/userService');
 const { User, Test } = require('../models');
 const crypto = require('crypto');
+const test = require('./test');
+const { NULL_VALUE } = require('../modules/responseMessage');
 
 const user = {
   //1. 회원가입
@@ -28,7 +30,7 @@ const user = {
         const user = await userService.signup(email, password, nickname);
         return res.status(sc.OK).send(ut.success(sc.OK, rm.SIGN_UP_SUCCESS, {
           email: user.email,
-          nickname: user.nickname,
+          nickname: user.nickname
         }));
       }
     } catch (error) {
@@ -110,21 +112,38 @@ const user = {
   getMypage: async (req, res) => {
     const { id } = req.decoded; //토큰 가져오기
     console.log(req.decoded);
+
+
     try {
-      const user = await User.findOne({
-        where: {
-          id
-        }, 
-        attributes: ['id', 'email', 'nickname'],
-        include: [{
-          model: Test,
-          require: true,
-          attributes: ['id', 'title', 'description', 'generated'],
-          where:{hidden:0}
-        }],
-      });
+      UserId = Test.UserId; //Test DB에서 user 찾기 (user가 만든 테스트 유무 확인)
+      const find = await Test.findOne({
+        where: { UserId :id },
+        attributes: ['id', 'title', 'description', 'generated']
+      })
+      if(!find) { //user 없을때
+        const find = await User.findOne({
+          where: {
+            id
+          },
+          attributes: ['id', 'email', 'nickname']
+        });
+        return res.status(sc.OK).send(ut.success(sc.OK, rm.MYPAGE_BRING_SUCCESS, find));
+        } else {
+          const user = await User.findOne({
+            where: {
+              id
+            }, 
+            attributes: ['id', 'email', 'nickname'],
+            include: [{
+              model: Test,
+              require: true,
+              attributes: ['id', 'title', 'description', 'generated'],
+              where:{hidden:0}
+            }],
+          });
       return res.status(sc.OK).send(ut.success(sc.OK, rm.MYPAGE_BRING_SUCCESS, user));
       }
+    }
       catch (error) {
         console.error(error);
         return res.status(sc.INTERNAL_SERVER_ERROR).send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.MYPAGE_BRING_FAIL));
