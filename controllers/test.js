@@ -318,12 +318,6 @@ const test = {
    */
   getTestRecommendations : async(req,res) => {
     try{
-      const {TestId}  = req.query; // 쿼리스트링에서 TestId를 받은 후
-      let where = {id:TestId}; // where 설정
-      const test = await Test.findOne({where}); // 해당 아이디의 test를 찾은 후
-
-      await Test.update({finishCount:test.finishCount+1}, {where}); // finishCount를 하나 올려준 다음에
-
       const order = [['visitCount', 'desc'], [Sequelize.literal('finishCount/visitCount'), 'desc']]; // 1. 조회수순 2.완주율순으로
       const attributes = ['id', 'title', 'description', 'questionCount', 'visitCount', 'finishCount'];
       const include = [{model:User, attributes:['nickname']}];
@@ -333,6 +327,35 @@ const test = {
       return res.status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_TESTS_SUCCESS, recommendedTests));
 
+    } catch(err){
+      console.error(err);
+      return res.status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
+    }
+  },
+
+  /**
+   * 테스트 상위6개 조회
+   * @summary 조회수 상위 6개 테스트 조회
+   * @param token, title, description, CategoryId, questions
+   * @return 성공/실패 여부
+   */
+  finishTest : async(req,res, next) => {
+    try{
+      const {TestId}  = req.params; // 쿼리스트링에서 TestId를 받은 후
+      console.log(TestId);
+      if(TestId){
+        let where = {id:TestId}; // where 설정
+        const test = await Test.findOne({where}); // 해당 아이디의 test를 찾은 후
+
+        await Test.update({finishCount:test.finishCount+1}, {where}); // finishCount를 하나 올려준 다음에
+      } else{
+        return res.status(sc.BAD_REQUEST)
+          .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
+      }
+
+      next();
+      
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
