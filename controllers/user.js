@@ -1,4 +1,4 @@
-;const ut = require('../modules/util');
+const ut = require('../modules/util');
 const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
 const jwt = require('../modules/jwt');
@@ -111,7 +111,7 @@ const user = {
     const { id } = req.decoded; //토큰 가져오기
     console.log(req.decoded);
     try {
-      let user = await User.findOne({
+      const user = await User.findOne({
         where: {
           id
         }, 
@@ -123,7 +123,6 @@ const user = {
           where:{hidden:0}
         }],
       });
-      if(!user) user="웹 화이팅~!~!";
       return res.status(sc.OK).send(ut.success(sc.OK, rm.MYPAGE_BRING_SUCCESS, user));
       }
       catch (error) {
