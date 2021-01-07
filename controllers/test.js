@@ -82,7 +82,6 @@ const test = {
       }
       return res.status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_QUESTIONS_SUCCESS, questions));
-
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
