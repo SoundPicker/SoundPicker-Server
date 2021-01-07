@@ -224,11 +224,13 @@ const user = {
         return res.status(sc.BAD_REQUEST).send(ut.fail(sc.BAD_REQUEST, rm.NULL_VALUE));
       }
 
+
       const salt = crypto.randomBytes(64).toString('base64');
       const hashedPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
 
       await User.update({
-        password: hashedPassword
+        password: hashedPassword,
+        salt
       },
       {
         where: {
