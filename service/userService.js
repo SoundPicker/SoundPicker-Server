@@ -26,20 +26,7 @@ module.exports = {
       throw err;
     }
   },
-
-  updateUser: async (email, password, randToken) => {
-    try {
-      const alreadyRandtoken = await User.update({email, password}, {
-        where: {
-          id: randToken
-        }
-      });
-      return alreadyRandtoken;
-    } catch (err) {
-      throw err;
-    }
-  },
-
+  
   signup: async (email, password, nickname) => {
     try {
       const salt = crypto.randomBytes(64).toString('base64');
