@@ -318,10 +318,13 @@ const test = {
   getTestRecommendations : async(req,res) => {
     try{
       const {TestId}  = req.query; // 쿼리스트링에서 TestId를 받은 후
-      let where = {id:TestId}; // where 설정
-      const test = await Test.findOne({where}); // 해당 아이디의 test를 찾은 후
+      if(TestId){
+        let where = {id:TestId}; // where 설정
+        const test = await Test.findOne({where}); // 해당 아이디의 test를 찾은 후
 
-      await Test.update({finishCount:test.finishCount+1}, {where}); // finishCount를 하나 올려준 다음에
+        await Test.update({finishCount:test.finishCount+1}, {where}); // finishCount를 하나 올려준 다음에
+      }
+      
 
       const order = [['visitCount', 'desc'], [Sequelize.literal('finishCount/visitCount'), 'desc']]; // 1. 조회수순 2.완주율순으로
       const attributes = ['id', 'title', 'description', 'questionCount', 'visitCount', 'finishCount'];
