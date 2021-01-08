@@ -52,7 +52,7 @@ const test = {
 
 
   /**
-   * 특정 테스트의 문제목록 조회
+   * 특정 테스트의 문제목록 조회 - 테스트 플레이 할 때
    * @summary 특정 테스트에 해당하는 문제들 조회하기
    * @param TestId
    * @return 해당 테스트의 문제목록
@@ -78,6 +78,45 @@ const test = {
       for(let question of questions){
         question.sound1URL = 'https://soundpicker-bucket.s3.ap-northeast-2.amazonaws.com/'+question.sound1URL;
         question.sound3URL = 'https://soundpicker-bucket.s3.ap-northeast-2.amazonaws.com/'+question.sound3URL;
+        question.dataValues.testTitle = test.title;
+      }
+      return res.status(sc.OK)
+        .send(ut.success(sc.OK, rm.GET_QUESTIONS_SUCCESS, questions));
+    } catch(err){
+      console.error(err);
+      return res.status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.success(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
+    }
+  },
+
+
+
+
+  /**
+   * 특정 테스트의 문제목록 조회 - 수정뷰용
+   * @summary 특정 테스트에 해당하는 문제들 조회하기
+   * @param TestId
+   * @return 해당 테스트의 문제목록
+   */
+  getSpecificTestBeforeUpdate : async(req,res) => {
+    const TestId = req.params.TestId;
+    
+    try{
+      let where = {id:TestId};
+      const test = await Test.findOne({where});
+
+      if(!test)
+        return res.status(sc.BAD_REQUEST)
+          .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
+
+      await Test.update({visitCount:test.visitCount+1}, {where});
+      
+      const order = [['questionNumber', 'asc']];
+      const attributes = ['questionNumber', 'questionYoutubeURL', 'questionStartsfrom', 'hint', 'answer', 'thumbnail', 'answerYoutubeURL'];
+      where = {TestId};
+      
+      let questions = await Question.findAll({order, attributes, where});
+      for(let question of questions){
         question.dataValues.testTitle = test.title;
       }
       return res.status(sc.OK)
