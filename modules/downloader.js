@@ -9,7 +9,7 @@ var Downloader = function () {
     ffmpegPath,
     outputPath: `${__dirname}/../audios`, // Output file location (default: the home directory)
     // youtubeVideoQuality: "highestaudio", // Desired video quality (default: highestaudio)
-    queueParallelism: 10, // Download parallelism (default: 1)
+    queueParallelism: 1, // Download parallelism (default: 1)
     // progressTimeout: 2000, // Interval in ms for the progress reports (default: 1000)
     // outputOptions: ["-af", "silenceremove=1:0:-50dB"], // Additional output options passend to ffmpeg
   });
@@ -17,8 +17,8 @@ var Downloader = function () {
   self.callbacks = {};
 
   self.YD.on("finished", function (error, data) {
-    if (self.callbacks[data.videoId]) {
-      self.callbacks[data.videoId](error, data);
+    if (self.callbacks[data.file]) {
+      self.callbacks[data.file](error, data);
     } else {
       console.log("Error: No callback for videoId!");
     }
@@ -40,7 +40,8 @@ Downloader.prototype.getMP3 = function (track, callback) {
   var self = this;
 
   // Register callback
-  self.callbacks[track.videoId] = callback;
+  console.log(track);
+  self.callbacks[`${__dirname}/../audios/${track.name}`] = callback;
   // Trigger download
   self.YD.download(track.videoId, track.name);
 };

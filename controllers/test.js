@@ -161,6 +161,7 @@ const test = {
   
         const prefix = `t${test.dataValues.id}q${questionNumber}`;
         dl.getMP3({videoId:questionYoutubeURL, name:prefix+questionYoutubeURL+'.mp3'}, async (err, result)=>{
+          console.log(result);
           i--;
           if(err) throw err;
           console.log(`${i}개남음`);
@@ -257,6 +258,7 @@ const test = {
   
         const prefix = `t${TestId}q${questionNumber}`;
         dl.getMP3({videoId:questionYoutubeURL, name:prefix+questionYoutubeURL+'.mp3'}, async (err, result)=>{
+          console.log(result);
           i--;
           if(err) throw err;
           console.log(`${i}개남음`);
