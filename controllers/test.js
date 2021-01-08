@@ -3,7 +3,7 @@ const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
 
 // 모델 불러오기
-const {User, Test, Question, Sequelize} = require('../models');
+const {User, Test, Question, Sequelize, Category} = require('../models');
 
 // youtube-mp3-downloader 관련
 const Downloader = require('../modules/downloader');
@@ -32,7 +32,7 @@ const test = {
       if(CategoryId) where['CategoryId'] = CategoryId;
       const order = [['visitCount', 'desc']];
       const attributes = ['id', 'title', 'description', 'questionCount'];
-      const include = [{model:User, attributes:['nickname']}];
+      const include = [{model:User, attributes:['nickname']}, {model:Category, attributes:['id']}];
 
       const tests = await Test.findAll({include, attributes, where, order});
       
