@@ -17,8 +17,8 @@ var Downloader = function () {
   self.callbacks = {};
 
   self.YD.on("finished", function (error, data) {
-    if (self.callbacks[data.videoId]) {
-      self.callbacks[data.videoId](error, data);
+    if (self.callbacks[data.file]) {
+      self.callbacks[data.file](error, data);
     } else {
       console.log("Error: No callback for videoId!");
     }
@@ -27,13 +27,12 @@ var Downloader = function () {
   self.YD.on("error", function (error, data) {
     console.error(error);
     console.log(data);
-    console.error(error + " on videoId " + data.videoId);
 
-    if (self.callbacks[data.videoId]) {
-      self.callbacks[data.videoId](error, data);
-    } else {
-      console.log("Error: No callback for videoId!");
-    }
+    // if (self.callbacks[data.videoId]) {
+    //   self.callbacks[data.videoId](error, data);
+    // } else {
+    //   console.log("Error: No callback for videoId!");
+    // }
   });
 };
 
@@ -41,7 +40,8 @@ Downloader.prototype.getMP3 = function (track, callback) {
   var self = this;
 
   // Register callback
-  self.callbacks[track.videoId] = callback;
+  console.log(track);
+  self.callbacks[`${__dirname}/../audios/${track.name}`] = callback;
   // Trigger download
   self.YD.download(track.videoId, track.name);
 };
