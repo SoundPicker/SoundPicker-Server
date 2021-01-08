@@ -27,13 +27,12 @@ var Downloader = function () {
   self.YD.on("error", function (error, data) {
     console.error(error);
     console.log(data);
-    console.error(error + " on videoId " + data.videoId);
 
-    if (self.callbacks[data.videoId]) {
-      self.callbacks[data.videoId](error, data);
-    } else {
-      console.log("Error: No callback for videoId!");
-    }
+    // if (self.callbacks[data.videoId]) {
+    //   self.callbacks[data.videoId](error, data);
+    // } else {
+    //   console.log("Error: No callback for videoId!");
+    // }
   });
 };
 
