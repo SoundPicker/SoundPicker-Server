@@ -120,7 +120,7 @@ const test = {
         question.dataValues.testTitle = test.title;
       }
       return res.status(sc.OK)
-        .send(ut.success(sc.OK, rm.GET_QUESTIONS_SUCCESS, questions));
+        .send(ut.success(sc.OK, rm.GET_QUESTIONS_SUCCESS, {test:{title:test.title, description:test.description, CategoryId:test.CategoryId}, questions}));
     } catch(err){
       console.error(err);
       return res.status(sc.INTERNAL_SERVER_ERROR)
