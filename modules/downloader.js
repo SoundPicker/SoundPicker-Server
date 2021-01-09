@@ -9,7 +9,7 @@ var Downloader = function () {
     ffmpegPath,
     outputPath: `${__dirname}/../audios`, // Output file location (default: the home directory)
     // youtubeVideoQuality: "highestaudio", // Desired video quality (default: highestaudio)
-    queueParallelism: 10, // Download parallelism (default: 1)
+    queueParallelism: 1, // Download parallelism (default: 1)
     // progressTimeout: 2000, // Interval in ms for the progress reports (default: 1000)
     // outputOptions: ["-af", "silenceremove=1:0:-50dB"], // Additional output options passend to ffmpeg
   });
