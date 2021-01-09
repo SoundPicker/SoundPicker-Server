@@ -6,6 +6,45 @@ const logger = require('morgan');
 const {sequelize} = require('./models');
 const cors = require('cors');
 
+const app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
+//서버 오픈
+server.listen(3000, () => {
+  console.log('Socket app listening on port 3000!');
+});
+
+//localhost:3000 접속시 바로 player.html 열기
+app.get('/', (req, res) => {
+  console
+  res.sendFile(__dirname + '/player.html');
+});
+
+io.sockets.on('connection', (socket) => { //클라이언트가 연결할때 발생, socket 객체 생성
+
+  socket.on('receive1', (from, answer1) => { //player의 메시지 받고 (on:받는 함수)
+    console.log('player a가 보낸 데이터: ', answer1);
+    ///receive 발생했을때 서버에서의 반응
+    io.emit('player_receive1', from, answer1);  //메시지를 모든 플레이어에게 보냄
+  }); //emit: 메시지 보내는 함수
+});
+
+io.sockets.on('connection', (socket) => {
+  socket.on('receive2', (from, answer2) => {
+    console.log('player b가 보낸 데이터: ', answer2);
+    io.emit('player_receive2', from, answer2);
+  });
+});
+
+io.sockets.on('connection', (socket) => {
+  socket.on('receive3', (from, answer3) => {
+    console.log('player c가 보낸 데이터: ', answer3);
+    io.emit('player_receive3', from, answer3);
+  });
+});
+
+
 sequelize.sync({alter : false})//force: false
   .then(() => {
     console.log('데이터베이스 연결 성공.');
@@ -16,7 +55,7 @@ sequelize.sync({alter : false})//force: false
 
 const indexRouter = require('./routes/index');
 
-const app = express();
+// const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
