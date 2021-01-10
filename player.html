@@ -85,13 +85,30 @@
     }
     socket.on('player_receive3', (answer3) => {
       document.getElementById("a3").value = answer3;
-      const result = document.getElementById("totalA").value;
-      if(result == true){
-        result = "true";
-      }else{
-        result = "false";
-      }
     });
+
+      // const aa1 = document.getElementById("a1").value;
+      // const aa2 = document.getElementById("a2").value;
+      // const aa3 = document.getElementById("a3").value;
+      // if(aa1=="1"&&aa2=="2"&&aa3=="3") {
+      //   document.getElementById("totalA").value = "All correct!"
+      // }else if(aa1!="1"&&aa2=="2"&&aa3=="3"){
+      //   document.getElementById("totalA").value = "Q1 is wrong"
+      // }else if(aa1=="1"&&aa2!="2"&&aa3=="3"){
+      //   document.getElementById("totalA").value = "Q2 is wrong"
+      // }else(aa1=="1"&&aa2=="2"&&aa3!="3"){
+      //   document.getElementById("totalA").value = "Q3 is wrong"
+      // }
+
+      // //3번까지 답 입력하면 점수 계산해서 반환해주기
+      // const table = document.getElementById('answerSheet'); //table element 찾기
+      
+      // //합계계산
+      // let sum = 0;
+      // for (let i =0; i <table.rows.length; i++) {
+      //   sum += parseInt(table.rows[i].cells[1].value);
+      // }
+      // document.getElementById("totalA").value = sum;
   </script>
 </body>
 
