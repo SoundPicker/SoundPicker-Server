@@ -140,9 +140,10 @@ const user = {
     try {
       UserId = Test.UserId; //Test DB에서 user 찾기 (user가 만든 테스트 유무 확인)
       const find = await Test.findOne({
-        where: { UserId :id },
+        where: { UserId :id, hidden:0 },
         attributes: ['id', 'title', 'description', 'generated']
       })
+      
       if(!find) { //user 없을때
         const find = await User.findOne({
           where: {
@@ -160,10 +161,11 @@ const user = {
             include: [{
               model: Test,
               require: true,
-              attributes: ['id', 'title', 'description', 'generated'],
+              attributes: ['id', 'title', 'description', 'generated', 'hidden'],
               where:{hidden:0}
             }],
           });
+          console.log(user);
       return res.status(sc.OK).send(ut.success(sc.OK, rm.MYPAGE_BRING_SUCCESS, user));
       }
     }
