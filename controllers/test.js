@@ -1,9 +1,11 @@
 const ut = require('../modules/util');
 const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
+const sendSlackMessage = require('../modules/slack');
 
 // 모델 불러오기
 const {User, Test, Question, Sequelize, Category} = require('../models');
+const {userService} = require('../service');
 
 // youtube-mp3-downloader 관련
 const Downloader = require('../modules/downloader');
@@ -203,6 +205,8 @@ const test = {
             let where = {id:test.dataValues.id};
             await Test.update({generated:1}, {where});
             console.log('완벽히 생성 성공!');
+            const nickname = await userService.getNickname(UserId);
+            sendSlackMessage(`${nickname} 유저의 "${title}" 테스트가 생성되었습니다🎵`);
           }
         })
       }
@@ -299,6 +303,8 @@ const test = {
             let where = {id:TestId};
             await Test.update({generated:1}, {where});
             console.log('완벽히 수정 성공!');
+            const nickname = await userService.getNickname(UserId);
+            sendSlackMessage(`${nickname} 유저의 "${title}" 테스트가 수정되었습니다🎵`);
           }
         })
       }

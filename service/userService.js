@@ -26,6 +26,13 @@ module.exports = {
       throw err;
     }
   },
+
+  getNickname: async(id)=>{
+    const user = await User.findOne({
+      where:{id}
+    });
+    return user.nickname;
+  },
   
   signup: async (email, password, nickname) => {
     try {
