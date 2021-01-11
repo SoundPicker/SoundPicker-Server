@@ -114,7 +114,7 @@ const test = {
       await Test.update({visitCount:test.visitCount+1}, {where});
       
       const order = [['questionNumber', 'asc']];
-      const attributes = ['questionNumber', 'questionYoutubeURL', 'questionStartsfrom', 'hint', 'answer', 'thumbnail', 'answerYoutubeURL'];
+      const attributes = ['questionNumber', 'questionYoutubeURL', 'questionStartsfrom', 'hint', 'answer', 'answerYoutubeURL'];
       where = {TestId};
       
       let questions = await Question.findAll({order, attributes, where});
