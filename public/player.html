@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SimpleSocketIO</title>
+    <link rel='stylesheet' type='text/css' href='stylesheets/player.css'/>
+  </head>
+
+  <body>
+    <div>
+      <table>
+        <tr>
+          <th>이름</th>
+          <th>Q1</th>
+          <th>Q2</th>
+          <th>Q3</th>
+          <th>Total</th>
+        </tr>
+        <tr>
+          <td>플레이어a</td>
+          <td><input id="a1" type="text" /></td>
+          <td><input id="a2" type="text" /></td>
+          <td><input id="a3" type="text" /></td>
+          <td><input id="totalA" type="text" /></td>
+        </tr>
+        <!-- <tr><td>플레이어b</td><td><input id="table" type="text"/></td><td><input id="table" type="text"/></td><td><input id="table" type="text"/></td></tr> -->
+        <!-- <tr><td>플레이어c</td><td><input id="table" type="text"/></td><td><input id="table" type="text"/></td><td><input id="table" type="text"/></td></tr> -->
+      </table>
+    </div>
+    <div>
+      <br />
+      <form id="answerSheet">
+        <div>
+          Q1 답을 입력하세요 : <input id="answer1" type="text" />
+          <input type="button" value="submit1" onclick="submit1()" />
+          <br />
+          Q2 답을 입력하세요 : <input id="answer2" type="text" />
+          <input type="button" value="submit2" onclick="submit2()" />
+          <br />
+          Q3 답을 입력하세요 : <input id="answer3" type="text" />
+          <input type="button" value="submit3" onclick="submit3()" />
+        </div>
+      </form>
+      <br />
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="javascripts/client-socket.js"></script>
+  </body>
+</html>

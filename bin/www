@@ -6,7 +6,10 @@
 
 const app = require('../app');
 const debug = require('debug')('soundpicker:server');
-const http = require('http');
+const server = require('http').createServer(app);
+
+const io = require('socket.io')(server);
+const socket = require('../modules/socket');
 
 /**
  * Get port from environment and store in Express.
@@ -19,7 +22,8 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-const server = http.createServer(app);
+io.on('connection', socket.connection);
+global.io = io;
 
 /**
  * Listen on provided port, on all network interfaces.
