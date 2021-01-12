@@ -8,11 +8,20 @@ const cors = require('cors');
 
 const app = express();
 var server = require('http').Server(app);
-var io = require('socket.io')(server);
+var io = require('socket.io')(server);;
+var mysql = require('mysql');
 
-//서버 오픈
-server.listen(3000, () => {
-  console.log('Socket app listening on port 3000!');
+var connection = mysql.createConnection({
+  host: 'soundpicker-db.ckxjgesoea8z.ap-northeast-2.rds.amazonaws.com',
+  user: 'admin',
+  password: 'tkdnsemvlzj12*',
+  database:'soundpicker'
+})
+connection.connect();
+
+// 서버 오픈
+server.listen(5000, () => {
+  console.log('Socket app listening on port 5000!');
 });
 
 //localhost:3000 접속시 바로 player.html 열기
@@ -22,8 +31,15 @@ app.get('/', (req, res) => {
 });
 
 io.sockets.on('connection', (socket) => { //클라이언트가 연결할때 발생, socket 객체 생성
+  console.log('connection');
   socket.on('receive1', (answer1) => { //player의 메시지 받고 (on:받는 함수)
     console.log('player a가 보낸 데이터: ', answer1);
+    
+    //chooga
+    connection.query("INSERT INTO Score (UserId, content, score) VALUES (?, ?, ?)", [
+      answer1.UserId, answer1.content, answer1.score
+    ], function() {});
+    
     ///receive 발생했을때 서버에서의 반응
     io.emit('player_receive1', answer1);  //메시지를 모든 플레이어에게 보냄
   }); //emit: 메시지 보내는 함수
