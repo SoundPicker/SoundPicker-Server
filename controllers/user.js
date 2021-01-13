@@ -6,8 +6,6 @@ const userService = require('../service/userService');
 const { nicknameCheck } = require('../service/userService');
 const { User, Test } = require('../models');
 const crypto = require('crypto');
-const test = require('./test');
-const { NULL_VALUE } = require('../modules/responseMessage');
 
 const user = {
   /**

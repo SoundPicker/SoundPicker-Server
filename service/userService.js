@@ -64,4 +64,6 @@ module.exports = {
       throw err;
     }
   },
+
+  // User 테이블에 접근하는 함수들 작성
 };
