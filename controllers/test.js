@@ -142,30 +142,28 @@ const test = {
   createTest : async(req,res) => {
     const UserId = req.decoded.id;
     const {title, description, CategoryId, questions} = req.body;
-    let i = questions.length;
     
 
     try{
-      // const test = await Test.create({
-      //   title,description,CategoryId, UserId, questionCount:questions.length, visitCount:0
-      // });
-      let videoDatas= {};
-
+      // 테스트를 먼저 만들고
+      const test = await Test.create({
+        title,description,CategoryId, UserId, questionCount:questions.length, visitCount:0
+      });
+      
+      let videoDatas= {}; // videos 들어가기 전 데이터를 뽑아낼 ㅓson
+    
+      let TestId=test.dataValues.id;
       for(let question of questions){
-        // 일단 DB에 넣는걸 먼저 하고 그담에 만들자.
         const {
           questionNumber,
           questionYoutubeURL,
           questionStartsfrom,
-          hint,
-          answer,
-          answerYoutubeURL,
         } = question;
 
         if(videoDatas.hasOwnProperty(questionYoutubeURL)){ // url 있는경우 시간만 넣어주자
-          videoDatas[questionYoutubeURL].push(questionStartsfrom);
+          videoDatas[questionYoutubeURL].push([questionNumber, questionStartsfrom]);
         } else{
-          videoDatas[questionYoutubeURL] =[questionStartsfrom];
+          videoDatas[questionYoutubeURL] =[[questionNumber, questionStartsfrom]];
         }
       }
 
@@ -173,31 +171,29 @@ const test = {
       // 자 그러면 비디오데이터에 다 들어간 상태겠지.
       for(let i in videoDatas){
         let slices = [];
-        let j=0;
-        for(let startTime of videoDatas[i]){
+        for(let number_startTime of videoDatas[i]){
           slices.push(
             {
-              start:new Date(startTime * 1000).toISOString().substr(11, 8),
-              end:new Date((startTime+3) * 1000).toISOString().substr(11, 8),
-              tags:{title:j}
+              start:new Date(number_startTime[1] * 1000).toISOString().substr(11, 8),
+              end:new Date((number_startTime[1]+3) * 1000).toISOString().substr(11, 8),
+              tags:{title:`t${TestId}q${number_startTime[0]}s3`}
             },
             {
-              start:new Date(startTime * 1000).toISOString().substr(11, 8),
-              end:new Date((startTime+1) * 1000).toISOString().substr(11, 8)
+              start:new Date(number_startTime[1] * 1000).toISOString().substr(11, 8),
+              end:new Date((number_startTime[1]+1) * 1000).toISOString().substr(11, 8),
+              tags:{title:`t${TestId}q${number_startTime[0]}s1`}
             }
           );
-          j+=1;
         }
         
         videos.push({
           url:`https://www.youtube.com/watch?v=${i}`,
-          tags:{artist:'hi', album:'bye',title:'hibye'},
-          quality:'8k',
+          quality:'128k',
           slices:slices
         });
       }
       console.log(JSON.stringify(videos,null,2));
-      downloader.generateDownloader(videos).run();
+      downloader.generateDownloader(videos, questions, TestId, title, UserId).run();
 
 
       return res.status(sc.OK).send(ut.success(sc.OK, rm.CREATE_TEST_SUCCESS));

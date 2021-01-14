@@ -7,7 +7,7 @@ const uploadFile = async (fileName) => {
   const fileContent = fs.readFileSync(fileName);
   const params = {
     Bucket:'soundpicker-bucket',
-    Key:fileName.split('/').pop(),
+    Key:fileName.split('/').pop().split('-').pop().trim(),
     Body:fileContent
   };
   s3.upload(params, (err, data)=>{
