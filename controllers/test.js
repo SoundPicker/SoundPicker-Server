@@ -8,8 +8,7 @@ const {User, Test, Question, Sequelize, Category} = require('../models');
 const {userService} = require('../service');
 
 // youtube-mp3-downloader 관련
-const Downloader = require('../modules/downloader');
-const dl = new Downloader(); 
+const downloader = require('../modules/downloader');
 
 // mp3-cutter
 const cutter = require('mp3-cutter');
@@ -147,11 +146,13 @@ const test = {
     
 
     try{
-      const test = await Test.create({
-        title,description,CategoryId, UserId, questionCount:questions.length, visitCount:0
-      });
+      // const test = await Test.create({
+      //   title,description,CategoryId, UserId, questionCount:questions.length, visitCount:0
+      // });
+      let videoDatas= {};
 
       for(let question of questions){
+        // 일단 DB에 넣는걸 먼저 하고 그담에 만들자.
         const {
           questionNumber,
           questionYoutubeURL,
@@ -160,56 +161,45 @@ const test = {
           answer,
           answerYoutubeURL,
         } = question;
-  
-        const prefix = `t${test.dataValues.id}q${questionNumber}`;
-        dl.getMP3({videoId:questionYoutubeURL, name:prefix+questionYoutubeURL+'.mp3'}, async (err, result)=>{
-          console.log(result);
-          i--;
-          if(err) throw err;
-          console.log(`${i}개남음`);
-          // console.log(result.file);
 
-          cutter.cut({
-            src:`${__dirname}/../audios/${prefix}${questionYoutubeURL}.mp3`,
-            target:`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`,
-            start:questionStartsfrom,
-            end:questionStartsfrom + 3
-          }); // 기본적으로 동기함수
-          console.log(`${questionNumber}번째 영상 3초컷 완료`);
-          cutter.cut({
-            src:`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`,
-            target:`${__dirname}/../audios/${prefix}${questionYoutubeURL}1.mp3`,
-            start:0,
-            end:1
-          }); // 기본적으로 동기함수
-          console.log('커팅완료');
-          await uploadFile(`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`);
-          await uploadFile(`${__dirname}/../audios/${prefix}${questionYoutubeURL}1.mp3`);
-          console.log('업로드완료');
-          await Question.create({
-            hint,
-            answer,
-            questionYoutubeURL,
-            questionStartsfrom,
-            sound1URL:`${prefix}${questionYoutubeURL}1.mp3`,
-            sound3URL:`${prefix}${questionYoutubeURL}3.mp3`,
-            answerYoutubeURL,
-            TestId:test.dataValues.id,
-            questionNumber
-          });
-  
-          console.log(`${questionNumber}번 DB저장 완료`);
-
-          if(i == 0){
-            // test 찾아서 generated 1로 바꿔줌.
-            let where = {id:test.dataValues.id};
-            await Test.update({generated:1}, {where});
-            console.log('완벽히 생성 성공!');
-            const nickname = await userService.getNickname(UserId);
-            sendSlackMessage(`${nickname} 유저의 "${title}" 테스트가 생성되었습니다🎵`);
-          }
-        })
+        if(videoDatas.hasOwnProperty(questionYoutubeURL)){ // url 있는경우 시간만 넣어주자
+          videoDatas[questionYoutubeURL].push(questionStartsfrom);
+        } else{
+          videoDatas[questionYoutubeURL] =[questionStartsfrom];
+        }
       }
+
+      let videos = [];
+      // 자 그러면 비디오데이터에 다 들어간 상태겠지.
+      for(let i in videoDatas){
+        let slices = [];
+        let j=0;
+        for(let startTime of videoDatas[i]){
+          slices.push(
+            {
+              start:new Date(startTime * 1000).toISOString().substr(11, 8),
+              end:new Date((startTime+3) * 1000).toISOString().substr(11, 8),
+              tags:{title:j}
+            },
+            {
+              start:new Date(startTime * 1000).toISOString().substr(11, 8),
+              end:new Date((startTime+1) * 1000).toISOString().substr(11, 8)
+            }
+          );
+          j+=1;
+        }
+        
+        videos.push({
+          url:`https://www.youtube.com/watch?v=${i}`,
+          tags:{artist:'hi', album:'bye',title:'hibye'},
+          quality:'8k',
+          slices:slices
+        });
+      }
+      console.log(JSON.stringify(videos,null,2));
+      downloader.generateDownloader(videos).run();
+
+
       return res.status(sc.OK).send(ut.success(sc.OK, rm.CREATE_TEST_SUCCESS));
     } catch(err){
       console.error(err);

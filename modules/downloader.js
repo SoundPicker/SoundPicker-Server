@@ -1,49 +1,50 @@
-var YoutubeMp3Downloader = require("youtube-mp3-downloader");
-const ffmpegPath = require('../config/ffmpegPath');
+import YoutubeMP3 from "@jeromeludmann/youtubemp3";
 
-var Downloader = function () {
-  var self = this;
+const downloader = {
+  generateDownloader : (videos)=>{
+    const youtubeMp3 = new YoutubeMP3({
+      output:`${__dirname}/../audios/v2/`,
+      videos,
+      // videos:[
+      //   {
+      //     url:'https://asdf',
+      //     quality:'128k',
+      //     slices:[
+      //       {
+      //         start:'00:00:00',
+      //         end:'00:00:01'
+      //       },
+      //       {
+      //         start:'00:00:00',
+      //         end:'00:00:03'
+      //       }
+      //     ]
+      //   }
+      // ]
+    });
+    youtubeMp3.on("downloading", (videoId, outputLine) => {
+      console.log(`Downloading Youtube video ID ${videoId}: ${outputLine}`);
+    });
+    
+    youtubeMp3.on("encoding", (videoId, outputLine) => {
+      console.log(`Encoding Youtube video ID ${videoId}: ${outputLine}`);
+    });
+    
+    youtubeMp3.on("downloaded", (videoId, success) => {
+      console.log(`Youtube video ID ${videoId} downloaded with success`);
+      
+    });
+    
+    youtubeMp3.on("encoded", (videoId, success) => {
+      console.log(`Youtube video ID ${videoId} encoded with success`);
+    });
+    
+    youtubeMp3.on("error", (videoId, err) => {
+      console.error(err);
+    });
 
-  //Configure YoutubeMp3Downloader with your settings
-  self.YD = new YoutubeMp3Downloader({
-    ffmpegPath,
-    outputPath: `${__dirname}/../audios`, // Output file location (default: the home directory)
-    // youtubeVideoQuality: "highestaudio", // Desired video quality (default: highestaudio)
-    queueParallelism: 1, // Download parallelism (default: 1)
-    // progressTimeout: 2000, // Interval in ms for the progress reports (default: 1000)
-    // outputOptions: ["-af", "silenceremove=1:0:-50dB"], // Additional output options passend to ffmpeg
-  });
+    return youtubeMp3;
+  }
+}
 
-  self.callbacks = {};
-
-  self.YD.on("finished", function (error, data) {
-    if (self.callbacks[data.file]) {
-      self.callbacks[data.file](error, data);
-    } else {
-      console.log("Error: No callback for videoId!");
-    }
-  });
-
-  self.YD.on("error", function (error, data) {
-    console.error(error);
-    console.log(data);
-
-    // if (self.callbacks[data.videoId]) {
-    //   self.callbacks[data.videoId](error, data);
-    // } else {
-    //   console.log("Error: No callback for videoId!");
-    // }
-  });
-};
-
-Downloader.prototype.getMP3 = function (track, callback) {
-  var self = this;
-
-  // Register callback
-  console.log(track);
-  self.callbacks[`${__dirname}/../audios/${track.name}`] = callback;
-  // Trigger download
-  self.YD.download(track.videoId, track.name);
-};
-
-module.exports = Downloader;
+module.exports = downloader;
