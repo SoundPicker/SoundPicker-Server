@@ -336,7 +336,7 @@ const test = {
       const order = [['visitCount', 'desc'], [Sequelize.literal('finishCount/visitCount'), 'desc']]; // 1. 조회수순 2.완주율순으로
       const attributes = ['id', 'title', 'description', 'questionCount', 'visitCount', 'finishCount'];
       const include = [{model:User, attributes:['nickname']}];
-      where = {hidden:0, generated:1};
+      let where = {hidden:0, generated:1};
       const recommendedTests = await Test.findAll({include, attributes, where, order, limit:6}); // 6개 조회
       
       return res.status(sc.OK)
