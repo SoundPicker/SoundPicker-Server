@@ -3,11 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon --exec babel-node ./bin/www"
   },
   "dependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/node": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@jeromeludmann/youtubemp3": "^0.7.7",
     "aws-sdk": "^2.819.0",
     "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "ffmpeg": "0.0.4",
@@ -21,6 +26,8 @@
     "mysql2": "^2.2.5",
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0",
+    "slack-node": "^0.1.8",
+    "socket.io": "^3.0.5",
     "youtube-dl": "^3.0.2",
     "youtube-mp3-downloader": "^0.7.6",
     "ytdl-core": "^4.3.0"

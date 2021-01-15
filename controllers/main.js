@@ -9,7 +9,7 @@ const main = {
     let where = {hidden:0, generated:1};
     let order = [['visitCount', 'desc']];
     let attributes = ['id', 'title', 'description', 'questionCount'];
-    let include = [{model:User, attributes:['nickname']}];
+    let include = [{model:User, attributes:['nickname']}, {model:Category, attributes:['id', 'description']}];
     const tests = await Test.findAll({include, attributes, where, order});
     const categories = await Category.findAll({});
     return res.status(sc.OK)

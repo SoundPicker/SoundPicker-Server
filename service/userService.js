@@ -27,19 +27,13 @@ module.exports = {
     }
   },
 
-  updateUser: async (email, password, randToken) => {
-    try {
-      const alreadyRandtoken = await User.update({email, password}, {
-        where: {
-          id: randToken
-        }
-      });
-      return alreadyRandtoken;
-    } catch (err) {
-      throw err;
-    }
+  getNickname: async(id)=>{
+    const user = await User.findOne({
+      where:{id}
+    });
+    return user.nickname;
   },
-
+  
   signup: async (email, password, nickname) => {
     try {
       const salt = crypto.randomBytes(64).toString('base64');
@@ -70,4 +64,6 @@ module.exports = {
       throw err;
     }
   },
+
+  // User 테이블에 접근하는 함수들 작성
 };

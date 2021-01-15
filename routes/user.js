@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const userController = require('../controllers/user');
+const {userController} = require('../controllers');
 const authUtil = require('../middlewares/auth');
 
 // 라우터 작성

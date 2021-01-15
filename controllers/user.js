@@ -8,7 +8,12 @@ const { User, Test } = require('../models');
 const crypto = require('crypto');
 
 const user = {
-  //1. 회원가입
+  /**
+   * 1. 회원가입
+   * @summary 회원가입하기
+   * @param email, password, nickname
+   * @return 성공/실패 여부
+   */
   signUp: async (req, res) => {
     const { email, password, nickname } = req.body;
     if (!email || !password || !nickname) {
@@ -28,7 +33,7 @@ const user = {
         const user = await userService.signup(email, password, nickname);
         return res.status(sc.OK).send(ut.success(sc.OK, rm.SIGN_UP_SUCCESS, {
           email: user.email,
-          nickname: user.nickname,
+          nickname: user.nickname
         }));
       }
     } catch (error) {
@@ -37,7 +42,12 @@ const user = {
     }
   },
 
-    //2. 이메일 중복확인
+  /**
+   * 2. 이메일 중복
+   * @summary 이메일 중복 확인하기
+   * @param email
+   * @return 성공/이미 존재함/실패
+   */
     checkEmail: async (req, res) => {
       const { email } = req.body;
       if(!email){
@@ -53,7 +63,12 @@ const user = {
           }))
       },
 
-    //3. 닉네임 중복확인
+  /**
+   * 3. 닉네임 중복
+   * @summary 닉네임 중복 확인하기
+   * @param nickname
+   * @return 성공/이미존재함/실패
+   */
     checkNickname: async (req, res) => {
       const { nickname } = req.body;
       if(!nicknameCheck){
@@ -69,7 +84,12 @@ const user = {
         }))
       },
 
-  //4. 로그인
+    /**
+   * 4. 로그인
+   * @summary 로그인하기
+   * @param email
+   * @return 성공(token, nickname)/실패
+   */
   signIn: async (req, res) => {
     const { email, password } = req.body;
 
@@ -104,34 +124,61 @@ const user = {
     }
   },
 
-  //6. 마이페이지 조회
-    //request:token
-    //response: {email, nickname, tests:[test_id, title, description]}
+  /**
+   * 5. 마이페이지
+   * @summary 마이페이지 조회하기
+   * @param token
+   * @return 해당 유저의 마이페이지 조회
+   */
   getMypage: async (req, res) => {
     const { id } = req.decoded; //토큰 가져오기
     console.log(req.decoded);
+
+
     try {
-      const user = await User.findOne({
-        where: {
-          id
-        }, 
-        attributes: ['id', 'email', 'nickname'],
-        include: [{
-          model: Test,
-          require: true,
-          attributes: ['id', 'title', 'description', 'generated'],
-          where:{hidden:0}
-        }],
-      });
+      //UserId = Test.UserId; //Test DB에서 user 찾기 (user가 만든 테스트 유무 확인)
+      const find = await Test.findOne({
+        where: { UserId :id, hidden:0 },
+        attributes: ['id', 'title', 'description', 'generated']
+      })
+      
+      if(!find) { //user 없을때
+        const find = await User.findOne({
+          where: {
+            id
+          },
+          attributes: ['id', 'email', 'nickname']
+        });
+        return res.status(sc.OK).send(ut.success(sc.OK, rm.MYPAGE_BRING_SUCCESS, find));
+        } else {
+          const user = await User.findOne({
+            where: {
+              id
+            }, 
+            attributes: ['id', 'email', 'nickname'],
+            include: [{
+              model: Test,
+              require: true,
+              attributes: ['id', 'title', 'description', 'generated', 'hidden'],
+              where:{hidden:0}
+            }],
+          });
+          console.log(user);
       return res.status(sc.OK).send(ut.success(sc.OK, rm.MYPAGE_BRING_SUCCESS, user));
       }
+    }
       catch (error) {
         console.error(error);
         return res.status(sc.INTERNAL_SERVER_ERROR).send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.MYPAGE_BRING_FAIL));
       }
     },
   
-  //7. 이메일 변경
+  /**
+   * 6. 이메일 변경
+   * @summary 해당 유저의 이메일 변경하기
+   * @param token, email
+   * @return 성공/권한없음/이미존재함/실패
+   */
   changeEmail: async (req, res) => {
     const { id } = req.decoded;
     const { email } = req.body;
@@ -171,7 +218,12 @@ const user = {
     }
   },
 
-  //8. 닉네임 변경
+  /**
+   * 7. 닉네임 변경
+   * @summary 해당 유저의 닉네임 변경하기
+   * @param token, nickname
+   * @return 성공/권한없음/이미존재함/실패
+   */
   changeNickname: async (req, res) => {
     const { id } = req.decoded;
     const { nickname } = req.body;
@@ -212,7 +264,12 @@ const user = {
     }
   },
 
-  //9. 패스워드 변경
+  /**
+   * 8. 패스워드 변경
+   * @summary 해당 유저의 패스워드 변경하기
+   * @param token, password
+   * @return 성공/권한없음/실패
+   */
   changePassword: async (req, res) => {
     const { id } = req.decoded;
     const { password } = req.body;
@@ -228,7 +285,8 @@ const user = {
       const hashedPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
 
       await User.update({
-        password: hashedPassword
+        password: hashedPassword,
+        salt
       },
       {
         where: {

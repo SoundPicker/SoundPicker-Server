@@ -17,6 +17,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue:0,
     },
+    finishCount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue:0
+    },
     hidden:{
       type: DataTypes.TINYINT(1),
       allowNull: false,
