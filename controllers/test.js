@@ -1,20 +1,12 @@
 const ut = require('../modules/util');
 const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
-const sendSlackMessage = require('../modules/slack');
 
 // 모델 불러오기
 const {User, Test, Question, Sequelize, Category} = require('../models');
-const {userService} = require('../service');
 
 // youtube-mp3-downloader 관련
 const downloader = require('../modules/downloader');
-
-// mp3-cutter
-const cutter = require('mp3-cutter');
-
-// s3 uploader
-const uploadFile = require('../modules/uploader');
 
 const test = {
 
@@ -29,7 +21,7 @@ const test = {
   getTests : async(req,res) => {
     const CategoryId = req.query.category;
     try{
-      let where = {hidden:0};
+      let where = {hidden:0, generated:1};
       if(CategoryId) where['CategoryId'] = CategoryId;
       const order = [['visitCount', 'desc']];
       const attributes = ['id', 'title', 'description', 'questionCount'];
@@ -65,7 +57,7 @@ const test = {
       let where = {id:TestId};
       const test = await Test.findOne({where});
 
-      if(!test)
+      if(!test) // 삭제되었을때, 생성안되었을때도 일단 조회는 되게 함. 
         return res.status(sc.BAD_REQUEST)
           .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
 
@@ -106,7 +98,7 @@ const test = {
       let where = {id:TestId};
       const test = await Test.findOne({where});
 
-      if(!test)
+      if(!test) // 삭제되었을때, 생성안되었을때도 일단 조회는 되게 함. 
         return res.status(sc.BAD_REQUEST)
           .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
 
@@ -150,7 +142,7 @@ const test = {
         title,description,CategoryId, UserId, questionCount:questions.length, visitCount:0
       });
       
-      let videoDatas= {}; // videos 들어가기 전 데이터를 뽑아낼 ㅓson
+      let videoDatas= {}; // videos 들어가기 전 데이터를 뽑아낼 json
     
       let TestId=test.dataValues.id;
       for(let question of questions){
@@ -192,7 +184,7 @@ const test = {
           slices:slices
         });
       }
-      console.log(JSON.stringify(videos,null,2));
+      // console.log(JSON.stringify(videos,null,2));
       downloader.generateDownloader(videos, questions, TestId, title, UserId).run();
 
 
@@ -216,7 +208,6 @@ const test = {
     const TestId = req.params.TestId;
 
     const {title, description, CategoryId, questions} = req.body;
-    let i = questions.length;
     
 
     try{
@@ -275,7 +266,7 @@ const test = {
           slices:slices
         });
       }
-      console.log(JSON.stringify(videos,null,2));
+      // console.log(JSON.stringify(videos,null,2));
       downloader.generateDownloader(videos, questions, TestId, title, UserId).run();
       return res.status(sc.OK).send(ut.success(sc.OK, rm.UPDATE_TEST_SUCCESS));
       
@@ -333,6 +324,7 @@ const test = {
    */
   getTestRecommendations : async(req,res) => {
     try{
+      // 전체 테스트가 6개 미만인 경우엔 에러뜸.
       const order = [['visitCount', 'desc'], [Sequelize.literal('finishCount/visitCount'), 'desc']]; // 1. 조회수순 2.완주율순으로
       const attributes = ['id', 'title', 'description', 'questionCount', 'visitCount', 'finishCount'];
       const include = [{model:User, attributes:['nickname']}];
@@ -350,7 +342,7 @@ const test = {
   },
 
   /**
-   * 테스트 상위6개 조회
+   * 테스트 상위6개 조회 (미들웨어)
    * @summary 조회수 상위 6개 테스트 조회
    * @param token, title, description, CategoryId, questions
    * @return 성공/실패 여부
@@ -358,7 +350,7 @@ const test = {
   finishTest : async(req,res, next) => {
     try{
       const {TestId}  = req.params; // 쿼리스트링에서 TestId를 받은 후
-      console.log(TestId);
+      // console.log(TestId);
       if(TestId){
         let where = {id:TestId}; // where 설정
         const test = await Test.findOne({where}); // 해당 아이디의 test를 찾은 후
@@ -369,7 +361,7 @@ const test = {
           .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
       }
 
-      next();
+      next(); // 다음 미들웨어로 넘어감.
       
     } catch(err){
       console.error(err);

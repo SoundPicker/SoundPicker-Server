@@ -36,10 +36,10 @@ const downloader = {
       if(mp3Count == 0){
         // mp3list가 순서대로 들어간다는 가정 하에 작업 ㅎㅎ.
         (async()=>{
-          console.log('mp3list는');
-          console.log(mp3list);
-          console.log('questions는');
-          console.log(questions);
+          // console.log('mp3list는');
+          // console.log(mp3list);
+          // console.log('questions는');
+          // console.log(questions);
           let i=0;
           for(let question of questions){
             const {
