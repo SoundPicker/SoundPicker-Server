@@ -18,6 +18,7 @@ db.Category = require('./category')(sequelize, Sequelize);
 db.Question = require('./question')(sequelize, Sequelize);
 db.Test = require('./test')(sequelize, Sequelize);
 db.User = require('./user')(sequelize, Sequelize);
+db.Log = require('./log')(sequelize, Sequelize);
 
 // category : test = 1 : N
 db.Category.hasMany(db.Test);
