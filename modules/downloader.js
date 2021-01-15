@@ -71,7 +71,7 @@ const downloader = {
           await Test.update({generated:1}, {where});
           console.log('완벽히 생성 성공!');
           const nickname = await userService.getNickname(UserId);
-          sendSlackMessage(`${nickname} 유저의 "${title}" 테스트가 생성되었습니다🎵`);
+          sendSlackMessage(`${nickname} 유저의 "${title}" 테스트가 수정되었습니다🎵`);
         })();
       }
     });

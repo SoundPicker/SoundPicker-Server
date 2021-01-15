@@ -235,65 +235,48 @@ const test = {
         title,description,CategoryId, questionCount:questions.length, generated:0
       }, {where:{id:TestId}});
       await Question.destroy({where:{TestId}});
-
+      let videoDatas= {}; // videos 들어가기 전 데이터를 뽑아낼 ㅓson
       for(let question of questions){
         const {
           questionNumber,
           questionYoutubeURL,
           questionStartsfrom,
-          hint,
-          answer,
-          answerYoutubeURL,
         } = question;
-  
-        const prefix = `t${TestId}q${questionNumber}`;
-        dl.getMP3({videoId:questionYoutubeURL, name:prefix+questionYoutubeURL+'.mp3'}, async (err, result)=>{
-          console.log(result);
-          i--;
-          if(err) throw err;
-          console.log(`${i}개남음`);
-          // console.log(result.file);
 
-          cutter.cut({
-            src:`${__dirname}/../audios/${prefix}${questionYoutubeURL}.mp3`,
-            target:`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`,
-            start:questionStartsfrom,
-            end:questionStartsfrom + 3
-          }); // 기본적으로 동기함수
-          console.log(`${questionNumber}번째 영상 3초컷 완료`);
-          cutter.cut({
-            src:`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`,
-            target:`${__dirname}/../audios/${prefix}${questionYoutubeURL}1.mp3`,
-            start:0,
-            end:1
-          }); // 기본적으로 동기함수
-          console.log('커팅완료');
-          await uploadFile(`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`);
-          await uploadFile(`${__dirname}/../audios/${prefix}${questionYoutubeURL}1.mp3`);
-          console.log('업로드완료');
-          await Question.create({
-            hint,
-            answer,
-            questionYoutubeURL,
-            questionStartsfrom,
-            sound1URL:`${prefix}${questionYoutubeURL}1.mp3`,
-            sound3URL:`${prefix}${questionYoutubeURL}3.mp3`,
-            answerYoutubeURL,
-            TestId,
-            questionNumber
-          });
-  
-          console.log(`${questionNumber}번 DB저장 완료`);
-
-          if(i == 0){
-            let where = {id:TestId};
-            await Test.update({generated:1}, {where});
-            console.log('완벽히 수정 성공!');
-            const nickname = await userService.getNickname(UserId);
-            sendSlackMessage(`${nickname} 유저의 "${title}" 테스트가 수정되었습니다🎵`);
-          }
-        })
+        if(videoDatas.hasOwnProperty(questionYoutubeURL)){ // url 있는경우 시간만 넣어주자
+          videoDatas[questionYoutubeURL].push([questionNumber, questionStartsfrom]);
+        } else{
+          videoDatas[questionYoutubeURL] =[[questionNumber, questionStartsfrom]];
+        }
       }
+
+      let videos = [];
+      // 자 그러면 비디오데이터에 다 들어간 상태겠지.
+      for(let i in videoDatas){
+        let slices = [];
+        for(let number_startTime of videoDatas[i]){
+          slices.push(
+            {
+              start:new Date(number_startTime[1] * 1000).toISOString().substr(11, 8),
+              end:new Date((number_startTime[1]+3) * 1000).toISOString().substr(11, 8),
+              tags:{title:`t${TestId}q${number_startTime[0]}s3`}
+            },
+            {
+              start:new Date(number_startTime[1] * 1000).toISOString().substr(11, 8),
+              end:new Date((number_startTime[1]+1) * 1000).toISOString().substr(11, 8),
+              tags:{title:`t${TestId}q${number_startTime[0]}s1`}
+            }
+          );
+        }
+        
+        videos.push({
+          url:`https://www.youtube.com/watch?v=${i}`,
+          quality:'128k',
+          slices:slices
+        });
+      }
+      console.log(JSON.stringify(videos,null,2));
+      downloader.generateDownloader(videos, questions, TestId, title, UserId).run();
       return res.status(sc.OK).send(ut.success(sc.OK, rm.UPDATE_TEST_SUCCESS));
       
     } catch(err){
