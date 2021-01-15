@@ -136,7 +136,7 @@ const user = {
 
 
     try {
-      UserId = Test.UserId; //Test DB에서 user 찾기 (user가 만든 테스트 유무 확인)
+      //UserId = Test.UserId; //Test DB에서 user 찾기 (user가 만든 테스트 유무 확인)
       const find = await Test.findOne({
         where: { UserId :id, hidden:0 },
         attributes: ['id', 'title', 'description', 'generated']

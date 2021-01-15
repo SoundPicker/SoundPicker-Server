@@ -1,21 +1,12 @@
 const ut = require('../modules/util');
 const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
-const sendSlackMessage = require('../modules/slack');
 
 // 모델 불러오기
 const {User, Test, Question, Sequelize, Category} = require('../models');
-const {userService} = require('../service');
 
 // youtube-mp3-downloader 관련
-const Downloader = require('../modules/downloader');
-const dl = new Downloader(); 
-
-// mp3-cutter
-const cutter = require('mp3-cutter');
-
-// s3 uploader
-const uploadFile = require('../modules/uploader');
+const downloader = require('../modules/downloader');
 
 const test = {
 
@@ -30,7 +21,7 @@ const test = {
   getTests : async(req,res) => {
     const CategoryId = req.query.category;
     try{
-      let where = {hidden:0};
+      let where = {hidden:0, generated:1};
       if(CategoryId) where['CategoryId'] = CategoryId;
       const order = [['visitCount', 'desc']];
       const attributes = ['id', 'title', 'description', 'questionCount'];
@@ -66,7 +57,7 @@ const test = {
       let where = {id:TestId};
       const test = await Test.findOne({where});
 
-      if(!test)
+      if(!test) // 삭제되었을때, 생성안되었을때도 일단 조회는 되게 함. 
         return res.status(sc.BAD_REQUEST)
           .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
 
@@ -107,7 +98,7 @@ const test = {
       let where = {id:TestId};
       const test = await Test.findOne({where});
 
-      if(!test)
+      if(!test) // 삭제되었을때, 생성안되었을때도 일단 조회는 되게 함. 
         return res.status(sc.BAD_REQUEST)
           .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
 
@@ -143,73 +134,60 @@ const test = {
   createTest : async(req,res) => {
     const UserId = req.decoded.id;
     const {title, description, CategoryId, questions} = req.body;
-    let i = questions.length;
     
 
     try{
+      // 테스트를 먼저 만들고
       const test = await Test.create({
         title,description,CategoryId, UserId, questionCount:questions.length, visitCount:0
       });
-
+      
+      let videoDatas= {}; // videos 들어가기 전 데이터를 뽑아낼 json
+    
+      let TestId=test.dataValues.id;
       for(let question of questions){
         const {
           questionNumber,
           questionYoutubeURL,
           questionStartsfrom,
-          hint,
-          answer,
-          answerYoutubeURL,
         } = question;
-  
-        const prefix = `t${test.dataValues.id}q${questionNumber}`;
-        dl.getMP3({videoId:questionYoutubeURL, name:prefix+questionYoutubeURL+'.mp3'}, async (err, result)=>{
-          console.log(result);
-          i--;
-          if(err) throw err;
-          console.log(`${i}개남음`);
-          // console.log(result.file);
 
-          cutter.cut({
-            src:`${__dirname}/../audios/${prefix}${questionYoutubeURL}.mp3`,
-            target:`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`,
-            start:questionStartsfrom,
-            end:questionStartsfrom + 3
-          }); // 기본적으로 동기함수
-          console.log(`${questionNumber}번째 영상 3초컷 완료`);
-          cutter.cut({
-            src:`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`,
-            target:`${__dirname}/../audios/${prefix}${questionYoutubeURL}1.mp3`,
-            start:0,
-            end:1
-          }); // 기본적으로 동기함수
-          console.log('커팅완료');
-          await uploadFile(`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`);
-          await uploadFile(`${__dirname}/../audios/${prefix}${questionYoutubeURL}1.mp3`);
-          console.log('업로드완료');
-          await Question.create({
-            hint,
-            answer,
-            questionYoutubeURL,
-            questionStartsfrom,
-            sound1URL:`${prefix}${questionYoutubeURL}1.mp3`,
-            sound3URL:`${prefix}${questionYoutubeURL}3.mp3`,
-            answerYoutubeURL,
-            TestId:test.dataValues.id,
-            questionNumber
-          });
-  
-          console.log(`${questionNumber}번 DB저장 완료`);
-
-          if(i == 0){
-            // test 찾아서 generated 1로 바꿔줌.
-            let where = {id:test.dataValues.id};
-            await Test.update({generated:1}, {where});
-            console.log('완벽히 생성 성공!');
-            const nickname = await userService.getNickname(UserId);
-            sendSlackMessage(`${nickname} 유저의 "${title}" 테스트가 생성되었습니다🎵`);
-          }
-        })
+        if(videoDatas.hasOwnProperty(questionYoutubeURL)){ // url 있는경우 시간만 넣어주자
+          videoDatas[questionYoutubeURL].push([questionNumber, questionStartsfrom]);
+        } else{
+          videoDatas[questionYoutubeURL] =[[questionNumber, questionStartsfrom]];
+        }
       }
+
+      let videos = [];
+      // 자 그러면 비디오데이터에 다 들어간 상태겠지.
+      for(let i in videoDatas){
+        let slices = [];
+        for(let number_startTime of videoDatas[i]){
+          slices.push(
+            {
+              start:new Date(number_startTime[1] * 1000).toISOString().substr(11, 8),
+              end:new Date((number_startTime[1]+3) * 1000).toISOString().substr(11, 8),
+              tags:{title:`t${TestId}q${number_startTime[0]}s3`}
+            },
+            {
+              start:new Date(number_startTime[1] * 1000).toISOString().substr(11, 8),
+              end:new Date((number_startTime[1]+1) * 1000).toISOString().substr(11, 8),
+              tags:{title:`t${TestId}q${number_startTime[0]}s1`}
+            }
+          );
+        }
+        
+        videos.push({
+          url:`https://www.youtube.com/watch?v=${i}`,
+          quality:'128k',
+          slices:slices
+        });
+      }
+      // console.log(JSON.stringify(videos,null,2));
+      downloader.generateDownloader(videos, questions, TestId, title, UserId).run();
+
+
       return res.status(sc.OK).send(ut.success(sc.OK, rm.CREATE_TEST_SUCCESS));
     } catch(err){
       console.error(err);
@@ -230,7 +208,6 @@ const test = {
     const TestId = req.params.TestId;
 
     const {title, description, CategoryId, questions} = req.body;
-    let i = questions.length;
     
 
     try{
@@ -249,65 +226,48 @@ const test = {
         title,description,CategoryId, questionCount:questions.length, generated:0
       }, {where:{id:TestId}});
       await Question.destroy({where:{TestId}});
-
+      let videoDatas= {}; // videos 들어가기 전 데이터를 뽑아낼 ㅓson
       for(let question of questions){
         const {
           questionNumber,
           questionYoutubeURL,
           questionStartsfrom,
-          hint,
-          answer,
-          answerYoutubeURL,
         } = question;
-  
-        const prefix = `t${TestId}q${questionNumber}`;
-        dl.getMP3({videoId:questionYoutubeURL, name:prefix+questionYoutubeURL+'.mp3'}, async (err, result)=>{
-          console.log(result);
-          i--;
-          if(err) throw err;
-          console.log(`${i}개남음`);
-          // console.log(result.file);
 
-          cutter.cut({
-            src:`${__dirname}/../audios/${prefix}${questionYoutubeURL}.mp3`,
-            target:`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`,
-            start:questionStartsfrom,
-            end:questionStartsfrom + 3
-          }); // 기본적으로 동기함수
-          console.log(`${questionNumber}번째 영상 3초컷 완료`);
-          cutter.cut({
-            src:`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`,
-            target:`${__dirname}/../audios/${prefix}${questionYoutubeURL}1.mp3`,
-            start:0,
-            end:1
-          }); // 기본적으로 동기함수
-          console.log('커팅완료');
-          await uploadFile(`${__dirname}/../audios/${prefix}${questionYoutubeURL}3.mp3`);
-          await uploadFile(`${__dirname}/../audios/${prefix}${questionYoutubeURL}1.mp3`);
-          console.log('업로드완료');
-          await Question.create({
-            hint,
-            answer,
-            questionYoutubeURL,
-            questionStartsfrom,
-            sound1URL:`${prefix}${questionYoutubeURL}1.mp3`,
-            sound3URL:`${prefix}${questionYoutubeURL}3.mp3`,
-            answerYoutubeURL,
-            TestId,
-            questionNumber
-          });
-  
-          console.log(`${questionNumber}번 DB저장 완료`);
-
-          if(i == 0){
-            let where = {id:TestId};
-            await Test.update({generated:1}, {where});
-            console.log('완벽히 수정 성공!');
-            const nickname = await userService.getNickname(UserId);
-            sendSlackMessage(`${nickname} 유저의 "${title}" 테스트가 수정되었습니다🎵`);
-          }
-        })
+        if(videoDatas.hasOwnProperty(questionYoutubeURL)){ // url 있는경우 시간만 넣어주자
+          videoDatas[questionYoutubeURL].push([questionNumber, questionStartsfrom]);
+        } else{
+          videoDatas[questionYoutubeURL] =[[questionNumber, questionStartsfrom]];
+        }
       }
+
+      let videos = [];
+      // 자 그러면 비디오데이터에 다 들어간 상태겠지.
+      for(let i in videoDatas){
+        let slices = [];
+        for(let number_startTime of videoDatas[i]){
+          slices.push(
+            {
+              start:new Date(number_startTime[1] * 1000).toISOString().substr(11, 8),
+              end:new Date((number_startTime[1]+3) * 1000).toISOString().substr(11, 8),
+              tags:{title:`t${TestId}q${number_startTime[0]}s3`}
+            },
+            {
+              start:new Date(number_startTime[1] * 1000).toISOString().substr(11, 8),
+              end:new Date((number_startTime[1]+1) * 1000).toISOString().substr(11, 8),
+              tags:{title:`t${TestId}q${number_startTime[0]}s1`}
+            }
+          );
+        }
+        
+        videos.push({
+          url:`https://www.youtube.com/watch?v=${i}`,
+          quality:'128k',
+          slices:slices
+        });
+      }
+      // console.log(JSON.stringify(videos,null,2));
+      downloader.generateDownloader(videos, questions, TestId, title, UserId).run();
       return res.status(sc.OK).send(ut.success(sc.OK, rm.UPDATE_TEST_SUCCESS));
       
     } catch(err){
@@ -364,10 +324,11 @@ const test = {
    */
   getTestRecommendations : async(req,res) => {
     try{
+      // 전체 테스트가 6개 미만인 경우엔 에러뜸.
       const order = [['visitCount', 'desc'], [Sequelize.literal('finishCount/visitCount'), 'desc']]; // 1. 조회수순 2.완주율순으로
       const attributes = ['id', 'title', 'description', 'questionCount', 'visitCount', 'finishCount'];
       const include = [{model:User, attributes:['nickname']}];
-      where = {hidden:0, generated:1};
+      let where = {hidden:0, generated:1};
       const recommendedTests = await Test.findAll({include, attributes, where, order, limit:6}); // 6개 조회
       
       return res.status(sc.OK)
@@ -381,7 +342,7 @@ const test = {
   },
 
   /**
-   * 테스트 상위6개 조회
+   * 테스트 상위6개 조회 (미들웨어)
    * @summary 조회수 상위 6개 테스트 조회
    * @param token, title, description, CategoryId, questions
    * @return 성공/실패 여부
@@ -389,7 +350,7 @@ const test = {
   finishTest : async(req,res, next) => {
     try{
       const {TestId}  = req.params; // 쿼리스트링에서 TestId를 받은 후
-      console.log(TestId);
+      // console.log(TestId);
       if(TestId){
         let where = {id:TestId}; // where 설정
         const test = await Test.findOne({where}); // 해당 아이디의 test를 찾은 후
@@ -400,7 +361,7 @@ const test = {
           .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
       }
 
-      next();
+      next(); // 다음 미들웨어로 넘어감.
       
     } catch(err){
       console.error(err);
