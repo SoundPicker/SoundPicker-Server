@@ -3,7 +3,7 @@ const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
 
 // 모델 불러오기
-const {User, Test, Question, Sequelize, Category} = require('../models');
+const {User, Test, Question, Sequelize, Category, Log} = require('../models');
 
 // youtube-mp3-downloader 관련
 const downloader = require('../modules/downloader');
@@ -62,7 +62,7 @@ const test = {
           .send(ut.fail(sc.BAD_REQUEST, rm.WRONG_INDEX));
 
       await Test.update({visitCount:test.visitCount+1}, {where});
-      
+      await Log.create({type:1});
       const order = [['questionNumber', 'asc']];
       const attributes = ['questionNumber', 'sound1URL', 'sound3URL', 'hint', 'answer', 'thumbnail', 'answerYoutubeURL'];
       where = {TestId};
