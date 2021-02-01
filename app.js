@@ -6,6 +6,9 @@ const logger = require('morgan');
 const {sequelize} = require('./models');
 const cors = require('cors');
 
+const {logService} = require('./service');
+const schedule = require('node-schedule');
+
 sequelize.sync({alter : false})//force: false
   .then(() => {
     console.log('데이터베이스 연결 성공.');
@@ -46,5 +49,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+schedule.scheduleJob('00 58 23 * * *', logService.everydayNotify); // 00초 58분 23시
 
 module.exports = app;
