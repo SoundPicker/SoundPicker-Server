@@ -50,7 +50,8 @@ db.Question.belongsTo(db.Test);
 <br>
 
 ## **📗 Architecture**
-<img src="https://user-images.githubusercontent.com/29622782/103550767-bb816580-4eec-11eb-9f60-f37d1acb2501.png">
+![image](https://user-images.githubusercontent.com/29622782/133400206-0a86ce5d-9d76-4611-b4b1-2fe55aa311dd.png)
+
 
 <br>
 
